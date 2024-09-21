@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        flutter-version: [3.13.0] # Specify the Flutter version you're using
+        flutter-version: [3.24.3] # Specify the Flutter version you're using
 
     steps:
       - name: Checkout the repository
