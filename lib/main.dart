@@ -29,17 +29,13 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
-  void getTransactions() {
-
-  }
+  void getTransactions() {}
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int counter = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: const Row(
+      body: const Column(
         children: [
           Flexible(
               fit: FlexFit.tight,
