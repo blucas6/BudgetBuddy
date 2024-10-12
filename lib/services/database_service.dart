@@ -1,11 +1,11 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../models/task.dart';
+import 'task.dart';
 
 class DatabaseService {
   static Database? _db;
-  static final DatabaseService instance = DatabaseService._constructor();
+  static final DatabaseService instance = DatabaseService._constructor(); // Singleton instance
 
   final String _tasksTableName = "tasks";
   final String _tasksIdColumnName = "id";
@@ -39,9 +39,7 @@ class DatabaseService {
     return database;
   }
 
-  void addTask(
-      String content,
-      ) async {
+  void addTask(String content,) async {
     final db = await database;
     await db.insert(
       _tasksTableName,
