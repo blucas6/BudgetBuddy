@@ -1,4 +1,7 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:budgetbuddy/components/transactionfile.dart';
 
 class AccountBar extends StatefulWidget {
   const AccountBar({super.key});
@@ -10,9 +13,39 @@ class AccountBar extends StatefulWidget {
 class _AccountBarState extends State<AccountBar> {
   List<String> accountList = [];
 
-  void addNewAccount() {
+  // Asks the user for a file to upload and adds a new account to the database
+  Future<void> addNewAccount() async {
+    String account = '';
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      TransactionFile tfile = TransactionFile(file);
+      // find out which account to parse for
+      account = await tfile.identifyAccount();
+    }
     setState(() {
-      accountList.add('tmpaccount');
+      // update the account list
+      if (account != '') {
+        accountList.add(account);
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Unsupported account type!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     });
   }
 
