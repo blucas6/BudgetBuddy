@@ -37,12 +37,9 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
-  void getTransactions() {}
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
@@ -55,16 +52,17 @@ class _MyHomePageState extends State<MyHomePage> {
       body: const Column(
         children: [
           Flexible(
-              fit: FlexFit.tight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  AccountBar(),
-                  TransactionWidget(),
-                  MonthlyPieChart()
-                ],
-              ))
+            fit: FlexFit.tight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AccountBar(),
+                TransactionWidget(),
+                MonthlyPieChart(),
+              ],
+            ),
+          ),
         ],
       ),
     );

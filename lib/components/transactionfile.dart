@@ -1,29 +1,54 @@
-import 'dart:io';
-import 'package:budgetbuddy/config/appconfig.dart';
-import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:budgetbuddy/services/database_service.dart';
 
-class TransactionFile {
-  // Object to represent the transaction file that users will upload
-  // Create this object by passing it the file object
-  File file;
-  TransactionFile(this.file);
+class TransactionWidget extends StatefulWidget {
+  final String accountNumber;
 
-  // Method to return the account type from the uploaded transactions
-  Future<String> identifyAccount() async {
-    String csvData = await file.readAsString();
-    List<List<dynamic>> rows = const CsvToListConverter().convert(csvData);
-    String headers = rows[0].join(',');
-    Appconfig appconfig = Appconfig();
-    if (appconfig.accountTypes != null) {
-      for (var account in appconfig.accountTypes!.keys) {
-        if (appconfig.accountTypes![account] == headers) {
-          return account;
-        }
-      }
-    } else {
-      debugPrint('config not loaded!');
-    }
-    return '';
+  const TransactionWidget({super.key, required this.accountNumber});
+  
+  @override
+  State<TransactionWidget> createState() => _TransactionWidgetState();
+}
+
+class _TransactionWidgetState extends State<TransactionWidget> {
+  List<Map<String, dynamic>> transactionList = [];
+  final DatabaseService dbService = DatabaseService.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    loadTransactions();
+  }
+
+  Future<void> loadTransactions() async {
+    transactionList = await dbService.getTransactions(widget.accountNumber);
+    setState(() {});
+  }
+
+  Future<void> deleteTransaction(int id) async {
+    await dbService.deleteTransaction(id);
+    await loadTransactions(); // Refresh transaction list
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        const Text('Transactions'),
+        Column(
+          children: transactionList.map((transaction) {
+            return Row(
+              children: [
+                Expanded(child: Text(transaction['description'])),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => deleteTransaction(transaction['id']),
+                ),
+              ],
+            );
+          }).toList(),
+        ),
+      ],
+    );
   }
 }
