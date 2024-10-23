@@ -20,12 +20,12 @@ class TransactionWidget extends StatelessWidget {
         const Text(
           'Transactions',
           style: TextStyle(
-            fontSize: 24,            // Set the font size of the title
-            fontWeight: FontWeight.bold // Make the title bold
+            fontSize: 24,            
+            fontWeight: FontWeight.bold
           ),
         ),
         
-        const SizedBox(height: 20),  // Adds space between the title and the list
+        const SizedBox(height: 20),  
 
         // Display each transaction as a simple text
         Column(
@@ -38,10 +38,3 @@ class TransactionWidget extends StatelessWidget {
     );
   }
 }
-
-void main() => runApp(MaterialApp(
-  home: Scaffold(
-    body: TransactionWidget(), // Set TransactionWidget as the body of the app
-  ),
-));
-
