@@ -1,4 +1,3 @@
-import 'package:budgetbuddy/config/appconfig.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
 import 'package:budgetbuddy/widgets/transactionswidget.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +15,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Appconfig appconfig = Appconfig();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -37,12 +34,9 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
-  void getTransactions() {}
-
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
@@ -70,3 +64,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
