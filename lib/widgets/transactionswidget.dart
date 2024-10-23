@@ -1,24 +1,47 @@
 import 'package:flutter/material.dart';
 
-class TransactionWidget extends StatefulWidget {
+// This widget displays a simple list of transactions
+class TransactionWidget extends StatelessWidget {
   const TransactionWidget({super.key});
-  @override
-  State<TransactionWidget> createState() => _TransactionWidgetState();
-}
-
-class _TransactionWidgetState extends State<TransactionWidget> {
-  void loadTransactions() {
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    // A simple list of transactions as strings
+    final List<String> transactions = [
+      'Groceries - \$50', // First transaction: Groceries
+      'Rent - \$1000',    // Second transaction: Rent
+      'Utilities - \$150' // Third transaction: Utilities
+    ];
+
+    // The main UI layout of the widget
+    return Column(
       children: <Widget>[
-        Text(
+        // Display the title "Transactions"
+        const Text(
           'Transactions',
+          style: TextStyle(
+            fontSize: 24,            // Set the font size of the title
+            fontWeight: FontWeight.bold // Make the title bold
+          ),
+        ),
+        
+        const SizedBox(height: 20),  // Adds space between the title and the list
+
+        // Display each transaction as a simple text
+        Column(
+          // Use map to convert each transaction string to a Text widget
+          children: transactions.map((transaction) {
+            return Text(transaction); // Display each transaction as text
+          }).toList(),  // Convert the map result to a list of widgets
         ),
       ],
     );
   }
 }
+
+void main() => runApp(MaterialApp(
+  home: Scaffold(
+    body: TransactionWidget(), // Set TransactionWidget as the body of the app
+  ),
+));
+
