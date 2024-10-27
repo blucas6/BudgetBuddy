@@ -26,6 +26,20 @@ class _TransactionWidgetState extends State<TransactionWidget> {
     currentTransactions.add(Transaction(id:1, dates:'2010-10-12', cardn:200, content:'fun', category: '', cost:120.00));
     currentTransactions.add(Transaction(id:2, dates:'2010-11-13', cardn:999, content:'going out', category: '', cost:2.00));
     currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    
     currentTransactionStrings = transactionsToStrings(currentTransactions);
     setState(() {});
   }
@@ -174,11 +188,14 @@ class _TransactionWidgetState extends State<TransactionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [SafeArea(
-      child: SingleChildScrollView(
+    return Column(children: [
+      Container(
+        height: 500,
+        child: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: createDataTable()
       )
-    )]);
+      )
+    ]);
   }
 }
