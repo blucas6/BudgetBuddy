@@ -10,9 +10,9 @@ class TransactionWidget extends StatefulWidget {
 }
 
 class _TransactionWidgetState extends State<TransactionWidget> {
-  List<Transaction> currentTransactions = [];
-  List<List<String>> currentTransactionStrings = [];
-  List<bool?> columnSorts = List.filled(Transaction().getProperties().keys.length, null);
+  List<Transaction> currentTransactions = [];   // list of transaction objects
+  List<List<String>> currentTransactionStrings = [];  // list of transaction objects as strings for display
+  List<bool?> columnSorts = List.filled(Transaction().getProperties().keys.length, null);   // fill null for however many columns we have
 
   // load transactions on startup
   @override
@@ -40,7 +40,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
     currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
     currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
     
-    currentTransactionStrings = transactionsToStrings(currentTransactions);
+    currentTransactionStrings = transactionsToStrings(currentTransactions); // turn to strings to display
     setState(() {});
   }
 
@@ -63,14 +63,13 @@ class _TransactionWidgetState extends State<TransactionWidget> {
           label: Row(
             children: [
                 Text(header),
-                getColumnIcon(cindex)
+                getColumnIcon(cindex)   // dynamically generate icon based on sorting state
             ]
           ),
           numeric: value is int || value is double,
           onSort: (columnIndex, direction) {
             if (direction) {
-              // sort transactions
-              sortMe(columnIndex);
+              sortMe(columnIndex);  // sort transactions
             }
           }
         ));
@@ -147,15 +146,16 @@ class _TransactionWidgetState extends State<TransactionWidget> {
       transrow.forEach((header, value) {
         String val = '';
         if (value is String) {
+          // string values don't require any parsing
           val = value;
         } else if (value is DateTime) {
           if (value == DateTime.parse('9999-99-99')) {
-            val = '';
+            val = '';   // don't display default date
           } else {
-            val = DateFormat('yyyy-MM-dd').format(value);
+            val = DateFormat('yyyy-MM-dd').format(value); // parse date
           }
         } else if (value == null) {
-          val = '';
+          val = ''; // don't display null params
         } else {
           val = value.toString();
         }
@@ -169,16 +169,19 @@ class _TransactionWidgetState extends State<TransactionWidget> {
 
   Transform getColumnIcon(int cindex) {
     if (columnSorts[cindex] == null) {
+      // unsorted column
       return Transform.rotate(
         angle: 0,
         child: const Icon(Icons.arrow_left_rounded)
       );
     } else if (columnSorts[cindex] == false) {
+      // column sorted lowest to highest
       return Transform.rotate(
         angle: 0,
         child: const Icon(Icons.arrow_drop_down_rounded)
       );
     } else {
+      // column sorted highest to lowest
       return Transform.rotate(
         angle: 180 *math.pi / 180,
         child: const Icon(Icons.arrow_drop_down_rounded)
