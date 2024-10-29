@@ -5,7 +5,8 @@ import 'task.dart';
 
 class DatabaseService {
   static Database? _db;
-  static final DatabaseService instance = DatabaseService._constructor(); // Singleton instance
+  static final DatabaseService instance =
+      DatabaseService._constructor(); // Singleton instance
 
   final String _tasksTableName = "tasks";
   final String _tasksIdColumnName = "id";
@@ -39,7 +40,9 @@ class DatabaseService {
     return database;
   }
 
-  void addTask(String content,) async {
+  void addTask(
+    String content,
+  ) async {
     final db = await database;
     await db.insert(
       _tasksTableName,
@@ -56,11 +59,11 @@ class DatabaseService {
     List<Task> tasks = data
         .map(
           (e) => Task(
-        id: e["id"] as int,
-        status: e["status"] as int,
-        content: e["content"] as String,
-      ),
-    )
+            id: e["id"] as int,
+            status: e["status"] as int,
+            content: e["content"] as String,
+          ),
+        )
         .toList();
     return tasks;
   }
@@ -80,8 +83,8 @@ class DatabaseService {
   }
 
   void deleteTask(
-      int id,
-      ) async {
+    int id,
+  ) async {
     final db = await database;
     await db.delete(
       _tasksTableName,
