@@ -1,3 +1,8 @@
 {
-    "Chase": "Transactions"
+    "Chase": "id,content,status",
+    "BankOfAmerica": "id,content,status",
+    "WellsFargo": "id,content,status",
+    "Citi": "id,content,status",
+    "USBank": "id,content,status",
+    "CapitalOne": "id,content,status"
 }

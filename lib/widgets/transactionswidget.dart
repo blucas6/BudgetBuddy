@@ -15,9 +15,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
   Widget build(BuildContext context) {
     return const Column(
       children: <Widget>[
-        Text(
-          'Transactions',
-        ),
+        Text('Transactions'),
       ],
     );
   }

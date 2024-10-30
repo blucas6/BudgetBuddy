@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:budgetbuddy/config/appconfig.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
-import 'package:excel/excel.dart'; // Ensure this package is imported
+import 'package:excel/excel.dart';
 
 class TransactionFile {
   File file;
@@ -15,6 +15,7 @@ class TransactionFile {
     if (file.path.endsWith('.csv')) {
       String csvData = await file.readAsString();
       headers = const CsvToListConverter().convert(csvData)[0].join(',');
+      print("CSV Headers: $headers");
     } else if (file.path.endsWith('.xlsx')) {
       // Read Excel file
       var bytes = await file.readAsBytes();
@@ -26,6 +27,14 @@ class TransactionFile {
                 ? cell?.value.toString()
                 : '') // Handle null values
             .join(',');
+        print("Excel Headers: $headers");
+
+        // Debugging each row
+        for (var row in firstTable.rows) {
+          print("Row data: ${row.map((cell) => cell?.value).toList()}");
+        }
+      } else {
+        print("No tables found in Excel file.");
       }
     }
 
@@ -33,6 +42,7 @@ class TransactionFile {
     if (appconfig.accountTypes != null) {
       for (var account in appconfig.accountTypes!.keys) {
         if (appconfig.accountTypes![account] == headers) {
+          print("Account type matched: $account");
           return account;
         }
       }

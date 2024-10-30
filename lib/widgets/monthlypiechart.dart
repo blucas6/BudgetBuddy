@@ -15,9 +15,7 @@ class _MonthlyPieChartState extends State<MonthlyPieChart> {
   Widget build(BuildContext context) {
     return const Column(
       children: <Widget>[
-        Text(
-          'Monthly Spending',
-        ),
+        Text('Monthly Spending'),
       ],
     );
   }
