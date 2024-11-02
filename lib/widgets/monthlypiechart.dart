@@ -1,22 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
-class MonthlyPieChart extends StatefulWidget {
+class MonthlyPieChart extends StatelessWidget {
   const MonthlyPieChart({super.key});
-  @override
-  State<MonthlyPieChart> createState() => _MonthlyPieChartState();
-}
-
-class _MonthlyPieChartState extends State<MonthlyPieChart> {
-  void loadMonth() {
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: <Widget>[
-        Text('Monthly Spending'),
-      ],
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // Keep the column compact
+        children: [
+          Text(
+            'Monthly Spending Analysis', // Title for the chart
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal,
+            ),
+          ),
+          SizedBox(height: 10), // Add some space between the title and the chart
+          SizedBox(
+            width: 200, // Specify width to avoid infinite sizing issues
+            height: 200, // Specify height to avoid infinite sizing issues
+            child: PieChart(
+              PieChartData(
+                sections: [
+                  PieChartSectionData(
+                    color: Colors.blue, // Represents necessary expenses
+                    value: 50,
+                    title: '50%',
+                    radius: 50,
+                    titleStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  PieChartSectionData(
+                    color: Colors.orange, // Represents wants
+                    value: 30,
+                    title: '30%',
+                    radius: 50,
+                    titleStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  PieChartSectionData(
+                    color: Colors.green, // Represents savings
+                    value: 20,
+                    title: '20%',
+                    radius: 50,
+                    titleStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ],
+                centerSpaceRadius: 40, // Center space size
+                sectionsSpace: 2, // Space between sections
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
