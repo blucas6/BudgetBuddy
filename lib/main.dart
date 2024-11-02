@@ -26,11 +26,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final Appconfig appconfig = Appconfig();
+  final dbService = DatabaseService();
 
   @override
   void initState() {
     super.initState();
-    testDatabase(); // Call the test function when the app starts
   }
 
   @override
@@ -45,22 +45,6 @@ class _MyAppState extends State<MyApp> {
       ),
       home: const MyHomePage(title: 'Home'),
     );
-  }
-
-  // Function to test database insert and print all data
-  Future<void> testDatabase() async {
-    final dbService = DatabaseService.instance;
-
-    // Add a new transaction
-    bool isSuccess = await dbService.addTransaction('Sample Transaction');
-    if (isSuccess) {
-      print('Transaction added successfully.');
-    } else {
-      print('Failed to add transaction.');
-    }
-
-    // Print all transactions to verify data storage
-    await dbService.printAllTransactions();
   }
 }
 

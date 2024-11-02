@@ -1,3 +1,4 @@
+import 'package:budgetbuddy/services/transaction.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -20,13 +21,13 @@ class _AccountBarState extends State<AccountBar> {
     if (result != null) {
       File file = File(result.files.single.path!);
       TransactionFile tfile = TransactionFile(file);
-
+      
       account = await tfile.identifyAccount();
       print("Identified Account: $account");
 
       if (account.isNotEmpty) {
-        final dbService = DatabaseService.instance;
-        await dbService.addTransaction("Example Content from Excel");
+        final dbService = DatabaseService();
+        await dbService.addTransaction(TransactionObj());
         print("Example transaction added to database.");
       }
     }
