@@ -1,7 +1,7 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'dart:io';
 import 'task.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DatabaseService {
   static Database? _db;
@@ -20,21 +20,13 @@ class DatabaseService {
   }
 
   Future<Database> getDatabase() async {
-    // Custom path for the database file
-    final customPath = 'C:\\Users\\YAsh\\Downloads\\master_db.db';
-
-    // Ensure the directory exists
-    final directory = Directory(dirname(customPath));
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-      print("Directory created: ${directory.path}");
-    } else {
-      print("Directory already exists: ${directory.path}");
-    }
+    // get user area
+    final databaseDirPath = await getApplicationSupportDirectory();
+    final databasePath = join(databaseDirPath.path, "master_db.db");
 
     // Open or create the database at the custom location
     final database = await openDatabase(
-      customPath,
+      databasePath,
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
@@ -47,7 +39,7 @@ class DatabaseService {
       },
     );
 
-    print("Database initialized at: $customPath");
+    print("Database initialized at: $databasePath");
     return database;
   }
 
