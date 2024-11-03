@@ -7,6 +7,7 @@ import 'package:budgetbuddy/services/transaction.dart';
 
 class DatabaseService {
   static Database? _db;
+  static int ID = 0;
   static final DatabaseService _instance = DatabaseService._constructor();
   factory DatabaseService() => _instance;
 
@@ -21,7 +22,7 @@ class DatabaseService {
     final databaseDirPath = await getApplicationSupportDirectory();
     final databasePath = join(databaseDirPath.path, "master_db.db");
 
-    // create query string from object
+    // create query string from a template object
     String query = '';
     String type = 'TEXT';
     String restriction = 'NOT NULL';
@@ -37,7 +38,6 @@ class DatabaseService {
       } else {
         type = 'TEXT';
       }
-      debugPrint("Value $value has type $type");
       // set primary key to first column
       if (index == 0) {
         restriction = 'PRIMARY KEY';
@@ -51,7 +51,7 @@ class DatabaseService {
         query += ', ';
       }
     });
-    debugPrint("Running query: "+query);
+    debugPrint("Running query: $query");
     // Open or create the database at the custom location
     try {
       _db = await openDatabase(
@@ -64,19 +64,21 @@ class DatabaseService {
     } catch (e) {
       debugPrint("Failed to connect to database! -> $e");
     }
-    
-
-    print("Database initialized at: $databasePath");
+    debugPrint("Database initialized at: $databasePath");
   }
 
-  // CRUD Operations
   Future<bool> addTransaction(TransactionObj trans) async {
     try {
+      // give the added transaction an id and increment
+      trans.id = ID++;
+      debugPrint("Trying to add:");
+      print(trans.getProperties());
       await _db!.insert(transactionTableName, trans.getProperties());
-      print("Transaction added: ");
+      debugPrint("Transaction added: ");
+      print(trans.getProperties());
       return true;
     } catch (e) {
-      print('Add transaction failed: $e');
+      debugPrint('Add transaction failed: $e');
       return false;
     }
   }
@@ -85,58 +87,57 @@ class DatabaseService {
     try {
       final data = await _db!.query(transactionTableName);
       // make use of transactionobj interface
+      // create objects to return from database
       return data.map((entry) => TransactionObj.loadFromMap(entry)).toList();
     } catch (e) {
-      print('Read transactions failed: $e');
+      debugPrint('Read transactions failed: $e');
       return [];
     }
   }
 
-  // Future<bool> updateTransactionStatus(int id, int status) async {
-  //   try {
-  //     final db = await database;
-  //     int count = await db.update(
-  //       _tasksTableName,
-  //       {
-  //         _tasksStatusColumnName: status,
-  //       },
-  //       where: '$_tasksIdColumnName = ?',
-  //       whereArgs: [id],
-  //     );
-  //     return count > 0;
-  //   } catch (e) {
-  //     print('Update transaction failed: $e');
-  //     return false;
-  //   }
-  // }
+  Future<bool> updateTransactionByID(int id, String column, dynamic value) async {
+    // pass an id to update a transaction at a given column with a certain value
+    try {
+      int count = await _db!.update(
+        transactionTableName,
+        {
+          column: value,
+        },
+        where: 'ID = ?',
+        whereArgs: [id],
+      );
+      return count > 0;
+    } catch (e) {
+      print('Update transaction failed: $e');
+      return false;
+    }
+  }
 
-  // Future<bool> deleteTransaction(int id) async {
-  //   try {
-  //     final db = await database;
-  //     int count = await db.delete(
-  //       _tasksTableName,
-  //       where: '$_tasksIdColumnName = ?',
-  //       whereArgs: [id],
-  //     );
-  //     return count > 0;
-  //   } catch (e) {
-  //     print('Delete transaction failed: $e');
-  //     return false;
-  //   }
-  // }
+  Future<bool> deleteTransaction(int id) async {
+    // pass an id and delete the column at that id
+    try {
+      int count = await _db!.delete(
+        transactionTableName,
+        where: 'ID = ?',
+        whereArgs: [id],
+      );
+      return count > 0;
+    } catch (e) {
+      debugPrint('Delete transaction failed: $e');
+      return false;
+    }
+  }
 
   // Verification Method
   Future<void> printAllTransactions() async {
     final List<Map<String, dynamic>> results = await _db!.query(transactionTableName);
 
     if (results.isNotEmpty) {
-      print('--- Transactions in Database ---');
-      for (var row in results) {
-        print(row); // Prints each row in the table
-      }
-      print('-------------------------------');
+      debugPrint('--- Transactions in Database ---');
+      print(results);
+      debugPrint('-------------------------------');
     } else {
-      print('No transactions found in the database.');
+      debugPrint('No transactions found in the database.');
     }
   }
 }

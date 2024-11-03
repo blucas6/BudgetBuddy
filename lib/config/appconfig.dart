@@ -11,12 +11,12 @@ class Appconfig {
 
   factory Appconfig() => _instance;
 
-  Map<String, dynamic>? accountTypes;
+  Map<String, dynamic>? accountInfo;
 
   void load() async {
     try {
       String jstring = await rootBundle.loadString('assets/accounttypes.json');
-      accountTypes = json.decode(jstring);
+      accountInfo = json.decode(jstring);
     } catch (e) {
       debugPrint('Failed to load config -> $e');
     }

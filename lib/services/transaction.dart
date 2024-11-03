@@ -31,11 +31,11 @@ class TransactionObj {
   // inverse of getProperties
   TransactionObj.loadFromMap(Map<String, dynamic> map) :
     id = map['ID'],
-    date = map['Date'],
+    date = map['Date'] is String ? DateTime.parse(map['Date']) : map['Date'],
     cardn = map['Card'],
     content = map['Description'],
     category = map['Category'],
-    cost = map['Cost'];
+    cost = map['Cost'] is int ? map['Cost'].toDouble() : map['Cost'];   // in case of integers
 
   // provide a sample transaction
   TransactionObj.defaultTransaction() :
@@ -45,4 +45,15 @@ class TransactionObj {
     content = 'Default Transaction',
     category = 'Default',
     cost = -1;
+
+  Map<String, dynamic> getBlankMap() {
+    return {
+      'ID': 0,
+      'Date': DateTime.parse('1980-01-01'),
+      'Card': 0,
+      'Description': '',
+      'Category': '',
+      'Cost': 0
+    };
+  }
 }

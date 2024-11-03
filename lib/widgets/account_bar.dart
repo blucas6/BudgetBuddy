@@ -1,9 +1,7 @@
-import 'package:budgetbuddy/services/transaction.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:budgetbuddy/components/transactionfile.dart';
-import 'package:budgetbuddy/services/database_service.dart';
 
 class AccountBar extends StatefulWidget {
   const AccountBar({super.key});
@@ -21,14 +19,18 @@ class _AccountBarState extends State<AccountBar> {
     if (result != null) {
       File file = File(result.files.single.path!);
       TransactionFile tfile = TransactionFile(file);
-      
-      account = await tfile.identifyAccount();
-      print("Identified Account: $account");
-
-      if (account.isNotEmpty) {
-        final dbService = DatabaseService();
-        await dbService.addTransaction(TransactionObj());
-        print("Example transaction added to database.");
+      bool status = await tfile.load();
+      if (status) {
+        // identify name of the account
+        account = tfile.account;
+        debugPrint("Identified Account: $account");
+        if (account.isNotEmpty) {
+          debugPrint("Adding transactions to database");
+          // if account name exists in config, tell the object to add the file data to the database
+          tfile.addTransactionToDatabase();
+        }
+      } else {
+        debugPrint("Error loading transaction file!");
       }
     }
 
