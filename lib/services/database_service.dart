@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 
 class DatabaseService {
+  // currently loads the database at: C:\Users\<user>\AppData\Roaming\com.example\budgetbuddy (windows)
   static Database? _db;
   static final DatabaseService _instance = DatabaseService._constructor();
   factory DatabaseService() => _instance;
