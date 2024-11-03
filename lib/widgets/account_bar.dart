@@ -13,19 +13,33 @@ class AccountBar extends StatefulWidget {
 class _AccountBarState extends State<AccountBar> {
   List<String> accountList = [];
 
-  // Asks the user for a file to upload and adds a new account to the database
   Future<void> addNewAccount() async {
     String account = '';
+    // ask user for a file
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
+      // load the file
       File file = File(result.files.single.path!);
+      // load the transactionFile object from the file
       TransactionFile tfile = TransactionFile(file);
-      // find out which account to parse for
-      account = await tfile.identifyAccount();
+      bool status = await tfile.load();
+      // if loading completed try to identify the account
+      if (status) {
+        // identify name of the account
+        account = tfile.account;
+        debugPrint("Identified Account: $account");
+        // if account name exists in config, tell the object to add the file data to the database
+        if (account.isNotEmpty) {
+          debugPrint("Adding transactions to database");
+          tfile.addTransactionToDatabase();
+        }
+      } else {
+        debugPrint("Error loading transaction file!");
+      }
     }
+
     setState(() {
-      // update the account list
-      if (account != '') {
+      if (account.isNotEmpty) {
         accountList.add(account);
       } else {
         showDialog(
@@ -53,20 +67,14 @@ class _AccountBarState extends State<AccountBar> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        const Text(
-          'Accounts',
-        ),
-        Column(
-            children: accountList
-                .map(
-                  (text) => Text(text),
-                )
-                .toList()),
+        const Text('Accounts'),
+        Column(children: accountList.map((text) => Text(text)).toList()),
         TextButton(
           onPressed: addNewAccount,
           style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all<Color>(
-                const Color.fromARGB(255, 12, 183, 226)),
+            backgroundColor: WidgetStateProperty.all(
+              const Color.fromARGB(255, 12, 183, 226),
+            ),
           ),
           child: const Text('+'),
         ),

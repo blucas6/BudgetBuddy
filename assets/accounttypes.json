@@ -1,3 +1,20 @@
 {
-    "Chase": "Transactions"
+    "Chase": {
+        "headers": "Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #",
+        "format": {
+            "Posting Date": "Date",
+            "Description": "Description",
+            "Amount": "Cost"
+        }
+    },
+    "Capital One": {
+        "headers": "Transaction Date,Posted Date,Card No.,Description,Category,Debit,Credit",
+        "format" : {
+            "Transaction Date": "Date",
+            "Card No.": "Card",
+            "Description": "Description",
+            "Category": "Category",
+            "Debit": "Cost"
+        }
+    }
 }

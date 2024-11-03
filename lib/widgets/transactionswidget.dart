@@ -10,9 +10,9 @@ class TransactionWidget extends StatefulWidget {
 }
 
 class _TransactionWidgetState extends State<TransactionWidget> {
-  List<Transaction> currentTransactions = [];   // list of transaction objects
+  List<TransactionObj> currentTransactions = [];   // list of transaction objects
   List<List<String>> currentTransactionStrings = [];  // list of transaction objects as strings for display
-  List<bool?> columnSorts = List.filled(Transaction().getProperties().keys.length, null);   // fill null for however many columns we have
+  List<bool?> columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);   // fill null for however many columns we have
   Map<int, TableColumnWidth> columnSizes = {};
 
   // load transactions on startup
@@ -23,38 +23,38 @@ class _TransactionWidgetState extends State<TransactionWidget> {
   }
 
   void loadTransactions() {
-    currentTransactions.add(Transaction(id:0, dates:'2010-10-16', cardn:999, content:'purchase', category: '', cost:12.00));
-    currentTransactions.add(Transaction(id:1, dates:'2010-10-12', cardn:200, content:'fun', category: '', cost:120.00));
-    currentTransactions.add(Transaction(id:2, dates:'2010-11-13', cardn:999, content:'going out', category: '', cost:2.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'this is a really long description', category: 'and a category', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(Transaction(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:0, dates:'2010-10-16', cardn:999, content:'purchase', category: '', cost:12.00));
+    currentTransactions.add(TransactionObj(id:1, dates:'2010-10-12', cardn:200, content:'fun', category: '', cost:120.00));
+    currentTransactions.add(TransactionObj(id:2, dates:'2010-11-13', cardn:999, content:'going out', category: '', cost:2.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'this is a really long description', category: 'and a category', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
+    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
     
     currentTransactionStrings = transactionsToStrings(currentTransactions); // turn to strings to display
     setState(() {});
@@ -64,7 +64,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
     List<Container> myHeaders = [];
     // create default transaction for display
     if (currentTransactions.isEmpty) {
-      currentTransactions.add(Transaction());
+      currentTransactions.add(TransactionObj());
     }
 
     // use the first transaction for layout
@@ -154,7 +154,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
   void sortMe(int cindex) {
     // get transactions as a map array
     List<Map<String,dynamic>> sortedTransactionMap = [];
-    for (Transaction ctr in currentTransactions) {
+    for (TransactionObj ctr in currentTransactions) {
       sortedTransactionMap.add(ctr.getProperties());
     }
     // find the column of interest as a key
@@ -193,7 +193,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
       Map<String, dynamic> transrow = {};   // row to parse
 
       // check for which data type we are looping through
-      if (trans is Transaction) {
+      if (trans is TransactionObj) {
         transrow = trans.getProperties();
       } else if (trans is Map<String,dynamic>) {
         transrow = trans;
@@ -206,7 +206,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
           // string values don't require any parsing
           val = value;
         } else if (value is DateTime) {
-          if (value == DateTime.parse('9999-99-99')) {
+          if (value == DateTime.parse('1980-01-01')) {
             val = '';   // don't display default date
           } else {
             val = DateFormat('yyyy-MM-dd').format(value); // parse date
