@@ -7,7 +7,6 @@ import 'package:budgetbuddy/services/transaction.dart';
 
 class DatabaseService {
   static Database? _db;
-  static int ID = 0;
   static final DatabaseService _instance = DatabaseService._constructor();
   factory DatabaseService() => _instance;
 
@@ -40,7 +39,7 @@ class DatabaseService {
       }
       // set primary key to first column
       if (index == 0) {
-        restriction = 'PRIMARY KEY';
+        restriction = 'PRIMARY KEY AUTOINCREMENT';
       } else {
         restriction = 'NOT NULL';
       }
@@ -70,10 +69,7 @@ class DatabaseService {
   Future<bool> addTransaction(TransactionObj trans) async {
     try {
       // give the added transaction an id and increment
-      trans.id = ID++;
-      debugPrint("Trying to add:");
-      print(trans.getProperties());
-      await _db!.insert(transactionTableName, trans.getProperties());
+      await _db!.insert(transactionTableName, trans.getPropertiesNoID());
       debugPrint("Transaction added: ");
       print(trans.getProperties());
       return true;

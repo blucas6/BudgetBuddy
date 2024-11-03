@@ -28,6 +28,18 @@ class TransactionObj {
     };
   }
 
+  // same as above, when adding objects to the database and the
+  // ID is not yet set, use a map of the obj without the ID
+  Map<String, dynamic> getPropertiesNoID() {
+    return {
+      'Date': DateFormat('yyyy-MM-dd').format(date),
+      'Card': cardn,
+      'Description': content,
+      'Category': category,
+      'Cost': cost
+    };
+  }
+
   // inverse of getProperties
   TransactionObj.loadFromMap(Map<String, dynamic> map) :
     id = map['ID'],
