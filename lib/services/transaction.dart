@@ -58,6 +58,7 @@ class TransactionObj {
     category = 'Default',
     cost = -1;
 
+  // provide a blank map to generate a transactionObj from
   Map<String, dynamic> getBlankMap() {
     return {
       'ID': 0,

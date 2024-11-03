@@ -15,18 +15,22 @@ class _AccountBarState extends State<AccountBar> {
 
   Future<void> addNewAccount() async {
     String account = '';
+    // ask user for a file
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
+      // load the file
       File file = File(result.files.single.path!);
+      // load the transactionFile object from the file
       TransactionFile tfile = TransactionFile(file);
       bool status = await tfile.load();
+      // if loading completed try to identify the account
       if (status) {
         // identify name of the account
         account = tfile.account;
         debugPrint("Identified Account: $account");
+        // if account name exists in config, tell the object to add the file data to the database
         if (account.isNotEmpty) {
           debugPrint("Adding transactions to database");
-          // if account name exists in config, tell the object to add the file data to the database
           tfile.addTransactionToDatabase();
         }
       } else {

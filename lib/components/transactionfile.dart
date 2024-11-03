@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:excel/excel.dart';
 
 class TransactionFile {
-  File file;
-  String? headers;
-  List<List<dynamic>> csvData = [];
-  List<TransactionObj> data = [];
-  String account = '';
+  File file;  // the actual transaction file
+  String? headers;  // headers for the file (used in identifying the account type)
+  List<List<dynamic>> csvData = [];   // raw data from the csv
+  List<TransactionObj> data = [];   // transactionObjs loaded from the csv
+  String account = '';  // will be loaded with the account name
   DatabaseService dbs = DatabaseService();
   Appconfig appconfig = Appconfig();
 
@@ -110,6 +110,7 @@ class TransactionFile {
   }
 
   void addTransactionToDatabase() {
+    // go through the list of transactionobjs and add the database
     for (TransactionObj trans in data) {
       dbs.addTransaction(trans);
     }
