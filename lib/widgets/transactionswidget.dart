@@ -13,7 +13,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
   List<TransactionObj> currentTransactions = [];   // list of transaction objects
   List<List<String>> currentTransactionStrings = [];  // list of transaction objects as strings for display
   List<bool?> columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);   // fill null for however many columns we have
-  Map<int, TableColumnWidth> columnSizes = {};
+  Map<int, TableColumnWidth> columnSizes = {};  // keep track of sizing for columns
 
   // load transactions on startup
   @override
@@ -23,78 +23,57 @@ class _TransactionWidgetState extends State<TransactionWidget> {
   }
 
   void loadTransactions() {
+    // TODO: load transactions from database
     currentTransactions.add(TransactionObj(id:0, dates:'2010-10-16', cardn:999, content:'purchase', category: '', cost:12.00));
     currentTransactions.add(TransactionObj(id:1, dates:'2010-10-12', cardn:200, content:'fun', category: '', cost:120.00));
     currentTransactions.add(TransactionObj(id:2, dates:'2010-11-13', cardn:999, content:'going out', category: '', cost:2.00));
     currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'this is a really long description', category: 'and a category', cost:1000.00));
     currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
-    currentTransactions.add(TransactionObj(id:3, dates:'2011-10-14', cardn:999, content:'food', category: '', cost:1000.00));
     
-    currentTransactionStrings = transactionsToStrings(currentTransactions); // turn to strings to display
+    // turn data to strings to display
+    currentTransactionStrings = transactionsToStrings(currentTransactions);
     setState(() {});
   }
 
   List<Container> createDataTableHeaders() {
-    List<Container> myHeaders = [];
-    // create default transaction for display
-    if (currentTransactions.isEmpty) {
-      currentTransactions.add(TransactionObj());
-    }
+    List<Container> myHeaders = [];   // holds header objects
+
+    // create default transaction for display structure (in case no data is loaded)
 
     // use the first transaction for layout
-    Map<String, dynamic> props = currentTransactions[0].getProperties();
-    int cindex = 0;
+    Map<String, dynamic> props = TransactionObj.defaultTransaction().getProperties();
+    int cindex = 0;   // keep track of index for sort function
+
+    // loop through the transaction to get the columns
     props.forEach((header, value) {
-      // loop through the transaction to get the columns
-      double cwidth = 150;
+      double cwidth = 150;  // default column width
       BoxDecoration decoration;
       Color headerColor = Colors.blueAccent;
+      // change column width for small headers
       if(header.length < 3) {
         cwidth = 80;
       } else if (header.length < 7) {
         cwidth = 90;
       }
+      // topleft rounded box
       if (cindex == 0) {
         decoration = BoxDecoration(
             borderRadius: BorderRadius.only(topLeft: Radius.circular(10)),
             color: headerColor
         );
+      // topright rounded box
       } else if(cindex == props.length-1) {
         decoration = BoxDecoration(
             borderRadius: BorderRadius.only(topRight: Radius.circular(10)),
             color: headerColor
         );
+      // middle no rounding
       } else {
         decoration = BoxDecoration(
           color: headerColor
         );
       }
+      // add container to list of headers
       myHeaders.add(        
         Container(
           decoration: decoration,
@@ -103,11 +82,12 @@ class _TransactionWidgetState extends State<TransactionWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(header),
-              getColumnIcon(cindex)  // dynamically generate icon based on sorting state
+              getColumnIcon(cindex)  // dynamically generate icon based on sorting state (icon contains sort function)
             ]
           ),
         )
       );
+      // add index and respective size
       columnSizes.addEntries([MapEntry(cindex, FixedColumnWidth(cwidth))]);
       cindex++;
     });
@@ -115,7 +95,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
   }
 
   Table createDataTable() {
-    List<TableRow> myRows = [];
+    List<TableRow> myRows = [];   // holds all rows for the table
 
     // loop through the transactions to create the cells and rows
     int index = 0;
@@ -136,6 +116,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
           )
         );
       }
+      // add finished row
       myRows.add(
         TableRow(
           children: myCells,
@@ -152,6 +133,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
   }
 
   void sortMe(int cindex) {
+    // sort transaction data depending on the column index
     // get transactions as a map array
     List<Map<String,dynamic>> sortedTransactionMap = [];
     for (TransactionObj ctr in currentTransactions) {
@@ -180,6 +162,7 @@ class _TransactionWidgetState extends State<TransactionWidget> {
       columnSorts[cindex] = null;
     }
 
+    // reset transaction strings so the table is regenerated with sorted data
     setState(() {
       currentTransactionStrings = transactionsToStrings(sortedTransactionMap);
     });
@@ -192,11 +175,9 @@ class _TransactionWidgetState extends State<TransactionWidget> {
       List<String> row = [];  // resulting row
       Map<String, dynamic> transrow = {};   // row to parse
 
-      // check for which data type we are looping through
+      // if using a transactionObj, turn it into a map first
       if (trans is TransactionObj) {
         transrow = trans.getProperties();
-      } else if (trans is Map<String,dynamic>) {
-        transrow = trans;
       }
 
       // parse the row
@@ -220,11 +201,11 @@ class _TransactionWidgetState extends State<TransactionWidget> {
       });
       transactionStrings.add(row);
     }
-
     return transactionStrings;
   }
 
   IconButton getColumnIcon(int cindex) {
+    // returns an icon button that triggers the sort function
     Transform myIcon;
     if (columnSorts[cindex] == null) {
       // unsorted column
