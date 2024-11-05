@@ -178,6 +178,9 @@ class _TransactionWidgetState extends State<TransactionWidget> {
       // if using a transactionObj, turn it into a map first
       if (trans is TransactionObj) {
         transrow = trans.getProperties();
+      } else {
+        // if using a List<Map<String,dynamic>> just assign the iterator
+        transrow = trans;
       }
 
       // parse the row
