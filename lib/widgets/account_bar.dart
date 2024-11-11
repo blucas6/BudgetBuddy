@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:budgetbuddy/components/transactionfile.dart';
 
 class AccountBar extends StatefulWidget {
-  const AccountBar({super.key});
+  final void Function() newDataTrigger;
+  const AccountBar({super.key, required this.newDataTrigger});
 
   @override
   State<AccountBar> createState() => _AccountBarState();
@@ -42,6 +43,7 @@ class _AccountBarState extends State<AccountBar> {
       if (account.isNotEmpty) {
         // success, register account to display
         accountList.add(account);
+        widget.newDataTrigger();
       } else {
         showDialog(
           context: context,

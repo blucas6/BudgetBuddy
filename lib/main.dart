@@ -1,4 +1,4 @@
-import 'package:budgetbuddy/config/appconfig.dart';
+import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
 import 'package:budgetbuddy/widgets/transactionswidget.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +58,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  final GlobalKey<TransactionWidgetState> _transactionWidgetStateKey = GlobalKey<TransactionWidgetState>();
+  void handleUpdate() {
+    _transactionWidgetStateKey.currentState?.loadTransactions();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: const Column(
+      body: Column(
         children: [
           Flexible(
             fit: FlexFit.tight,
@@ -73,8 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AccountBar(),
-                TransactionWidget(),
+                AccountBar(newDataTrigger: () => handleUpdate(),),
+                TransactionWidget(key: _transactionWidgetStateKey,),
                 MonthlyPieChart(),
               ],
             ),

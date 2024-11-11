@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:budgetbuddy/config/appconfig.dart';
+import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/services/database_service.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 import 'package:csv/csv.dart';
