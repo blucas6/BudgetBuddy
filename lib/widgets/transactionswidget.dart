@@ -39,7 +39,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
     // use the first transaction for layout
     Map<String, dynamic> props = TransactionObj.defaultTransaction().getProperties();
     Map<String, dynamic> displayProps = TransactionObj.defaultTransaction().getDisplayProperties();
-    int cindex = 0;   // keep track of index for sort function
+    int tableColumnIndex = 0;   // keep track of index for column sizing
+    int sortIndex = 0;  // keep track of index for sorting
 
     // loop through the transaction to get the columns
     props.forEach((header, value) {
@@ -55,13 +56,13 @@ class TransactionWidgetState extends State<TransactionWidget> {
           cwidth = 90;
         }
         // topleft rounded box
-        if (cindex == 0) {
+        if (tableColumnIndex == 0) {
           decoration = BoxDecoration(
               borderRadius: BorderRadius.only(topLeft: Radius.circular(10)),
               color: headerColor
           );
         // topright rounded box
-        } else if(cindex == props.length-1) {
+        } else if(tableColumnIndex == props.length-1) {
           decoration = BoxDecoration(
               borderRadius: BorderRadius.only(topRight: Radius.circular(10)),
               color: headerColor
@@ -81,15 +82,16 @@ class TransactionWidgetState extends State<TransactionWidget> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(header),
-                getColumnIcon(cindex)  // dynamically generate icon based on sorting state (icon contains sort function)
+                getColumnIcon(sortIndex)  // dynamically generate icon based on sorting state (icon contains sort function)
               ]
             ),
           )
         );
         // add index and respective size
-        columnSizes.addEntries([MapEntry(cindex, FixedColumnWidth(cwidth))]);
-        cindex++;
+        columnSizes.addEntries([MapEntry(tableColumnIndex, FixedColumnWidth(cwidth))]);
+        tableColumnIndex++; // increment columns when done building
       }
+      sortIndex++;  // increment sort index regardless if column is displayed or not
     });
     return myHeaders;
   }

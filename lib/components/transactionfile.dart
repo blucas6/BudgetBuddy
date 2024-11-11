@@ -5,6 +5,7 @@ import 'package:budgetbuddy/services/transaction.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:excel/excel.dart';
+import 'package:intl/intl.dart';
 
 class TransactionFile {
   File file;  // the actual transaction file
@@ -91,9 +92,18 @@ class TransactionFile {
           dynamic value = csvData[i][j];
           // check if config maps the given key to a transactionobj key
           if (appconfig.accountInfo![account]['format'].containsKey(key)) {
+            // load the format to check for additional parsing
+            Map<String,dynamic> keyFormat = appconfig.accountInfo![account]['format'][key];
+            // if a value requires addional parsing, check the 'parsing' key
+            if (keyFormat.containsKey('parsing')) {
+              // check the type of parsing
+              if (keyFormat['parsing'] == 'dateformat') {
+                // check the parsing format for the proper datetime parsing format
+                value = DateFormat(keyFormat['formatter']).parse(value);
+              }
+            }
             // key is present therefore place the value of the csv into the transaction map
-            String transObjKey = appconfig.accountInfo![account]['format'][key];
-            transactionMap[transObjKey] = value;
+            transactionMap[keyFormat['column']] = value;
           } else {
             debugPrint("Key does not exists -> $key");
           }
