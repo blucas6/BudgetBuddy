@@ -85,7 +85,7 @@ class TransactionObj {
       'Description': true,
       'Category': true, 
       'Cost': true,
-      'Account': true
+      'Account': false
     };
   }
 

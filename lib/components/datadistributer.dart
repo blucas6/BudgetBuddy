@@ -14,4 +14,13 @@ class Datadistributer {
     return await dbs.getTransactions();
   }
 
+  Future<List<String>> loadAccountList() async {
+    List<Map<String,dynamic>> accounts = await dbs.getAllAccounts();
+    List<String> accountlist = [];
+    for (Map<String,dynamic> row in accounts) {
+      accountlist.add(row['name']);
+    }
+    return accountlist;
+  }
+
 }

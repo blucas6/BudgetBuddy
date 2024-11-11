@@ -24,6 +24,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
   }
 
   void loadTransactions() async {
+    debugPrint("Reloading transaction widget");
     currentTransactions = await datadistributer.loadData();
     // turn data to strings to display
     currentTransactionStrings = transactionsToStrings(currentTransactions);

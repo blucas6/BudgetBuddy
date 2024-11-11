@@ -98,25 +98,32 @@ class TransactionFile {
             debugPrint("Key does not exists -> $key");
           }
         }
+        // add account type as a column
+        transactionMap['Account'] = account;
         // done going through columns, add transactionobj to list
         TransactionObj currentTrans = TransactionObj.loadFromMap(transactionMap);
         data.add(currentTrans);
-        debugPrint("New transaction obj:");
-        print(currentTrans.getProperties());
       }
       return true;
     }
     return false;
   }
 
-  void addTransactionToDatabase() async {
+  Future<bool> addTransactionToDatabase() async {
     // check to make sure the account exists first
-    if (!await dbs.checkIfAccountExists(account)) {
-      dbs.addAccount(account);
+    try {
+      if (!await dbs.checkIfAccountExists(account)) {
+        dbs.addAccount(account);
+      }
+      // go through the list of transactionobjs and add the database
+      for (TransactionObj trans in data) {
+        dbs.addTransaction(trans);
+      }
+      return true;
     }
-    // go through the list of transactionobjs and add the database
-    for (TransactionObj trans in data) {
-      dbs.addTransaction(trans);
+    catch (e) {
+      debugPrint("Failed while adding transactions -> $e");
     }
+    return false;
   }
 }

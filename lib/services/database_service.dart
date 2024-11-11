@@ -19,7 +19,13 @@ class DatabaseService {
     loadDatabase();
   }
 
-  void loadDatabase() async {
+  Future<Database> get database async {
+    if (_db != null) return _db!;
+    _db = await loadDatabase();
+    return _db!;
+  }
+
+  Future<Database> loadDatabase() async {
     // get user area
     final databaseDirPath = await getApplicationSupportDirectory();
     final databasePath = join(databaseDirPath.path, "master_db.db");
@@ -35,10 +41,10 @@ class DatabaseService {
         query += ', ';
       }
     });
-    debugPrint("Running query: $query");
-    // Open or create the database at the custom location
+    // Open or create the database at the custom location'
+    dynamic db;
     try {
-      _db = await openDatabase(
+      db = await openDatabase(
             databasePath,
             version: 1,
             onCreate: (db, version) async {
@@ -54,11 +60,13 @@ class DatabaseService {
       debugPrint("Failed to connect to database! -> $e");
     }
     debugPrint("Database initialized at: $databasePath");
+    return db;
   }
 
   Future<bool> checkIfAccountExists(String accountName) async {
     try {
-      List<Map<String, dynamic>> result = await _db!.rawQuery(
+      final db = await database;
+      List<Map<String, dynamic>> result = await db.rawQuery(
         "SELECT * FROM $accountTableName WHERE name = '$accountName'"
       );
       return result.isNotEmpty;
@@ -67,11 +75,22 @@ class DatabaseService {
     }
   }
 
+  Future<List<Map<String,dynamic>>> getAllAccounts() async {
+    try {
+      final db = await database;
+      return await db.query(accountTableName);
+    } catch (e) {
+      debugPrint("Accounts query failed -> $e");
+      return [{}];
+    }
+  }
+
   Future<bool> addAccount(String accountName) async {
     // accounts must be added before transaction data because of the
     // foreign key constraint
     try {
-      await _db!.insert(accountTableName, {'name': accountName});
+      final db = await database;
+      await db.insert(accountTableName, {'name': accountName});
       debugPrint("Account added: $accountName");
       return true;
     } catch (e) {
@@ -83,7 +102,8 @@ class DatabaseService {
   Future<bool> addTransaction(TransactionObj trans) async {
     try {
       // sqlite will increment the id, so provide a map with no id
-      await _db!.insert(transactionTableName, trans.getPropertiesNoID());
+      final db = await database;
+      await db.insert(transactionTableName, trans.getPropertiesNoID());
       debugPrint("Transaction added: ");
       print(trans.getProperties());
       return true;
@@ -95,7 +115,8 @@ class DatabaseService {
 
   Future<List<TransactionObj>> getTransactions() async {
     try {
-      final data = await _db!.query(transactionTableName);
+      final db = await database;
+      final data = await db.query(transactionTableName);
       // make use of transactionobj interface
       // create objects to return from database
       return data.map((entry) => TransactionObj.loadFromMap(entry)).toList();
@@ -108,7 +129,8 @@ class DatabaseService {
   Future<bool> updateTransactionByID(int id, String column, dynamic value) async {
     // pass an id to update a transaction at a given column with a certain value
     try {
-      int count = await _db!.update(
+      final db = await database;
+      int count = await db.update(
         transactionTableName,
         {
           column: value,
@@ -126,7 +148,8 @@ class DatabaseService {
   Future<bool> deleteTransaction(int id) async {
     // pass an id and delete the column at that id
     try {
-      int count = await _db!.delete(
+      final db = await database;
+      int count = await db.delete(
         transactionTableName,
         where: 'ID = ?',
         whereArgs: [id],
@@ -140,8 +163,8 @@ class DatabaseService {
 
   // Verification Method
   Future<void> printAllTransactions() async {
-    final List<Map<String, dynamic>> results = await _db!.query(transactionTableName);
-
+    final db = await database;
+    final List<Map<String, dynamic>> results = await db.query(transactionTableName);
     if (results.isNotEmpty) {
       debugPrint('--- Transactions in Database ---');
       print(results);

@@ -1,3 +1,4 @@
+import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -13,6 +14,17 @@ class AccountBar extends StatefulWidget {
 
 class _AccountBarState extends State<AccountBar> {
   List<String> accountList = [];
+  Datadistributer datadistributer = Datadistributer();
+  @override 
+  void initState() {
+    super.initState();
+    loadAccounts();
+  }
+
+  void loadAccounts() async {
+    accountList = await datadistributer.loadAccountList();
+    setState(() {});
+  }
 
   Future<void> addNewAccount() async {
     String account = '';
@@ -32,7 +44,7 @@ class _AccountBarState extends State<AccountBar> {
         // if account name exists in config, tell the object to add the file data to the database
         if (account.isNotEmpty) {
           debugPrint("Adding transactions to database");
-          tfile.addTransactionToDatabase();
+          await tfile.addTransactionToDatabase();
         }
       } else {
         debugPrint("Error loading transaction file!");
