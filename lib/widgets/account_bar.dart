@@ -40,6 +40,7 @@ class _AccountBarState extends State<AccountBar> {
 
     setState(() {
       if (account.isNotEmpty) {
+        // success, register account to display
         accountList.add(account);
       } else {
         showDialog(

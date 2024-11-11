@@ -12,8 +12,10 @@ class DatabaseService {
   factory DatabaseService() => _instance;
 
   static final String transactionTableName = "transactions";
+  static final String accountTableName = "accounts";
 
   DatabaseService._constructor() {
+    // setup the database on constructor call
     loadDatabase();
   }
 
@@ -24,27 +26,9 @@ class DatabaseService {
 
     // create query string from a template object
     String query = '';
-    String type = 'TEXT';
-    String restriction = 'NOT NULL';
     int index = 0;
-    TransactionObj.defaultTransaction().getProperties().forEach((name, value) {
-      // dynamic typing of values
-      if (value is int?) {
-        type = 'INTEGER';
-      } else if (value is DateTime) {
-        type = 'DATE';
-      } else if (value is double?) {
-        type = 'DOUBLE';
-      } else {
-        type = 'TEXT';
-      }
-      // set primary key to first column
-      if (index == 0) {
-        restriction = 'PRIMARY KEY AUTOINCREMENT';
-      } else {
-        restriction = 'NOT NULL';
-      }
-      query += '$name $type $restriction';
+    TransactionObj.defaultTransaction().getSQLProperties().forEach((name, value) {
+      query += '$name $value';
       index++;
       // add divider except for the last value
       if (index != TransactionObj().getProperties().keys.length) {
@@ -58,7 +42,12 @@ class DatabaseService {
             databasePath,
             version: 1,
             onCreate: (db, version) async {
-              await db.execute("CREATE TABLE IF NOT EXISTS $transactionTableName ($query)");
+              await db.execute("""
+                PRAGMA foreign_keys = ON;
+                CREATE TABLE IF NOT EXISTS $accountTableName (name TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS $transactionTableName ($query,
+                FOREIGN KEY (Account) REFERENCES $accountTableName(name));
+              """);
             },
           );
     } catch (e) {
@@ -67,9 +56,33 @@ class DatabaseService {
     debugPrint("Database initialized at: $databasePath");
   }
 
+  Future<bool> checkIfAccountExists(String accountName) async {
+    try {
+      List<Map<String, dynamic>> result = await _db!.rawQuery(
+        "SELECT * FROM $accountTableName WHERE name = '$accountName'"
+      );
+      return result.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> addAccount(String accountName) async {
+    // accounts must be added before transaction data because of the
+    // foreign key constraint
+    try {
+      await _db!.insert(accountTableName, {'name': accountName});
+      debugPrint("Account added: $accountName");
+      return true;
+    } catch (e) {
+      debugPrint('Add account failed: $e');
+      return false;
+    }
+  }
+
   Future<bool> addTransaction(TransactionObj trans) async {
     try {
-      // give the added transaction an id and increment
+      // sqlite will increment the id, so provide a map with no id
       await _db!.insert(transactionTableName, trans.getPropertiesNoID());
       debugPrint("Transaction added: ");
       print(trans.getProperties());

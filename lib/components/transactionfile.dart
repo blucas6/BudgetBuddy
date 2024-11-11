@@ -109,7 +109,11 @@ class TransactionFile {
     return false;
   }
 
-  void addTransactionToDatabase() {
+  void addTransactionToDatabase() async {
+    // check to make sure the account exists first
+    if (!await dbs.checkIfAccountExists(account)) {
+      dbs.addAccount(account);
+    }
     // go through the list of transactionobjs and add the database
     for (TransactionObj trans in data) {
       dbs.addTransaction(trans);

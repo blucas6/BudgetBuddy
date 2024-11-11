@@ -42,87 +42,97 @@ class _TransactionWidgetState extends State<TransactionWidget> {
 
     // use the first transaction for layout
     Map<String, dynamic> props = TransactionObj.defaultTransaction().getProperties();
+    Map<String, dynamic> displayProps = TransactionObj.defaultTransaction().getDisplayProperties();
     int cindex = 0;   // keep track of index for sort function
 
     // loop through the transaction to get the columns
     props.forEach((header, value) {
-      double cwidth = 150;  // default column width
-      BoxDecoration decoration;
-      Color headerColor = Colors.blueAccent;
-      // change column width for small headers
-      if(header.length < 3) {
-        cwidth = 80;
-      } else if (header.length < 7) {
-        cwidth = 90;
-      }
-      // topleft rounded box
-      if (cindex == 0) {
-        decoration = BoxDecoration(
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(10)),
+      // check that column should be displayed, use displayProperties
+      if (displayProps[header]) {
+        double cwidth = 150;  // default column width
+        BoxDecoration decoration;
+        Color headerColor = Colors.blueAccent;
+        // change column width for small headers
+        if(header.length < 3) {
+          cwidth = 80;
+        } else if (header.length < 7) {
+          cwidth = 90;
+        }
+        // topleft rounded box
+        if (cindex == 0) {
+          decoration = BoxDecoration(
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(10)),
+              color: headerColor
+          );
+        // topright rounded box
+        } else if(cindex == props.length-1) {
+          decoration = BoxDecoration(
+              borderRadius: BorderRadius.only(topRight: Radius.circular(10)),
+              color: headerColor
+          );
+        // middle no rounding
+        } else {
+          decoration = BoxDecoration(
             color: headerColor
+          );
+        }
+        // add container to list of headers
+        myHeaders.add(        
+          Container(
+            decoration: decoration,
+            width: cwidth,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(header),
+                getColumnIcon(cindex)  // dynamically generate icon based on sorting state (icon contains sort function)
+              ]
+            ),
+          )
         );
-      // topright rounded box
-      } else if(cindex == props.length-1) {
-        decoration = BoxDecoration(
-            borderRadius: BorderRadius.only(topRight: Radius.circular(10)),
-            color: headerColor
-        );
-      // middle no rounding
-      } else {
-        decoration = BoxDecoration(
-          color: headerColor
-        );
+        // add index and respective size
+        columnSizes.addEntries([MapEntry(cindex, FixedColumnWidth(cwidth))]);
+        cindex++;
       }
-      // add container to list of headers
-      myHeaders.add(        
-        Container(
-          decoration: decoration,
-          width: cwidth,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(header),
-              getColumnIcon(cindex)  // dynamically generate icon based on sorting state (icon contains sort function)
-            ]
-          ),
-        )
-      );
-      // add index and respective size
-      columnSizes.addEntries([MapEntry(cindex, FixedColumnWidth(cwidth))]);
-      cindex++;
     });
     return myHeaders;
   }
 
   Table createDataTable() {
     List<TableRow> myRows = [];   // holds all rows for the table
-
+    Map<String, dynamic> displayProperties = TransactionObj.defaultTransaction().getDisplayProperties();
     // loop through the transactions to create the cells and rows
-    int index = 0;
+    int rowcount = 0;   // keep track of rows for coloring
     for (List<String> row in currentTransactionStrings) {
       List<TableCell> myCells = [];
-      for (String cell in row) {
-        myCells.add(
-          TableCell(
-            child: Container(
-              height: 30,
-              padding: EdgeInsets.only(left: 10),
-              alignment: Alignment.centerLeft,
-              color: index % 2 != 0 ? Color.fromARGB(255, 255, 255, 255) : Color.fromARGB(255, 201, 240, 255),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Text(cell)),
-            ),
-          )
-        );
-      }
+      int cellcount = 0;  // keep track of cells to determine what to display
+      // loop through properties and only display cells that need to be displayed
+      displayProperties.forEach((key, isDisplay) {
+        if (isDisplay) {
+          String cell = row[cellcount];
+          myCells.add(
+            TableCell(
+              child: Container(
+                height: 30,
+                padding: EdgeInsets.only(left: 10),
+                alignment: Alignment.centerLeft,
+                color: rowcount % 2 != 0 ? Color.fromARGB(255, 255, 255, 255) : Color.fromARGB(255, 201, 240, 255),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Text(cell)),
+              ),
+            )
+          );
+        }
+        cellcount++;
+      });
       // add finished row
       myRows.add(
         TableRow(
           children: myCells,
         )
       );
-      index++;
+      rowcount++;
     }
     return Table(
         border: TableBorder.symmetric(),
