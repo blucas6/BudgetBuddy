@@ -59,8 +59,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
+  // get the key to the transaction widget state
   final GlobalKey<TransactionWidgetState> _transactionWidgetStateKey = GlobalKey<TransactionWidgetState>();
+
   void handleUpdate() {
+    // trigger the widget to reload its state
     _transactionWidgetStateKey.currentState?.loadTransactions();
   }
 

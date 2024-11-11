@@ -8,12 +8,15 @@ class Datadistributer {
 
   factory Datadistributer() => _instance;
 
+  // connection to database
   DatabaseService dbs = DatabaseService();
 
+  // gets all available transactions from the database
   Future<List<TransactionObj>> loadData() async {
     return await dbs.getTransactions();
   }
 
+  // gets all the accounts added as a list
   Future<List<String>> loadAccountList() async {
     List<Map<String,dynamic>> accounts = await dbs.getAllAccounts();
     List<String> accountlist = [];

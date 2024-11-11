@@ -20,6 +20,7 @@ class DatabaseService {
   }
 
   Future<Database> get database async {
+    // database getter
     if (_db != null) return _db!;
     _db = await loadDatabase();
     return _db!;

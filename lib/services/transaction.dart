@@ -89,6 +89,7 @@ class TransactionObj {
     };
   }
 
+  // build SQL query according to properties
   Map<String, dynamic> getSQLProperties() {
     return {
       'ID': 'INTEGER PRIMARY KEY',

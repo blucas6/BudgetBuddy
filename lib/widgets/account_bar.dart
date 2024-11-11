@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:budgetbuddy/components/transactionfile.dart';
 
 class AccountBar extends StatefulWidget {
+  // this callback triggers the main app to reload all widgets
   final void Function() newDataTrigger;
   const AccountBar({super.key, required this.newDataTrigger});
 
@@ -22,6 +23,7 @@ class _AccountBarState extends State<AccountBar> {
   }
 
   void loadAccounts() async {
+    // on load, get previously stored data from the db
     accountList = await datadistributer.loadAccountList();
     setState(() {});
   }
@@ -55,6 +57,7 @@ class _AccountBarState extends State<AccountBar> {
       if (account.isNotEmpty) {
         // success, register account to display
         accountList.add(account);
+        // trigger the callback to reload all widgets
         widget.newDataTrigger();
       } else {
         showDialog(
