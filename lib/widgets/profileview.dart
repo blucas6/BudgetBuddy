@@ -42,7 +42,12 @@ class ProfileViewState extends State<ProfileView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('My Profile Summary'),
+          const Text('My Profile Summary',
+            style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.teal,
+          ),),
           Text('Total Spending: ${profile['totalspending']!.toStringAsFixed(2)}'),
           Text('Total Income: ${profile['totalincome']!.toStringAsFixed(2)}'),
           Text('Total Assets: ${profile['totalassets']!.toStringAsFixed(2)}'),

@@ -40,6 +40,10 @@ class TransactionWidgetState extends State<TransactionWidget> {
     Map<String, dynamic> props = TransactionObj.defaultTransaction().getProperties();
     Map<String, dynamic> displayProps = TransactionObj.defaultTransaction().getDisplayProperties();
     int tableColumnIndex = 0;   // keep track of index for column sizing
+    int totalColumnsDisplayed = 0;
+    displayProps.forEach((column, toDisplay) {
+      if (toDisplay) totalColumnsDisplayed++;
+    });
     int sortIndex = 0;  // keep track of index for sorting
 
     // loop through the transaction to get the columns
@@ -62,7 +66,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
               color: headerColor
           );
         // topright rounded box
-        } else if(tableColumnIndex == props.length-1) {
+        } else if(tableColumnIndex == totalColumnsDisplayed-1) {
           decoration = BoxDecoration(
               borderRadius: BorderRadius.only(topRight: Radius.circular(10)),
               color: headerColor

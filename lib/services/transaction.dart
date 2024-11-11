@@ -4,7 +4,7 @@ class TransactionObj {
   late DateTime date;
   int? id, cardn;
   double? cost;
-  String? content, category, accountname;
+  String? content, category, account, tags;
 
   TransactionObj(
       {this.id,
@@ -13,7 +13,8 @@ class TransactionObj {
       this.content,
       this.category,
       this.cost,
-      this.accountname}) {
+      this.account,
+      this.tags}) {
     date = dates != null ? DateTime.parse(dates) : DateTime.parse('1980-01-01');
   }
 
@@ -26,7 +27,8 @@ class TransactionObj {
       'Description': content,
       'Category': category,
       'Cost': cost,
-      'Account': accountname
+      'Account': account,
+      'Tags': tags
     };
   }
 
@@ -39,7 +41,8 @@ class TransactionObj {
       'Description': content,
       'Category': category,
       'Cost': cost,
-      'Account': accountname
+      'Account': account,
+      'Tags': tags
     };
   }
 
@@ -51,7 +54,8 @@ class TransactionObj {
     content = map['Description'],
     category = map['Category'],
     cost = map['Cost'] is int ? map['Cost'].toDouble() : map['Cost'],   // in case of integers
-    accountname = map['Account'];
+    account = map['Account'],
+    tags = map['Tags'];
 
   // provide a sample transaction
   TransactionObj.defaultTransaction() :
@@ -61,7 +65,8 @@ class TransactionObj {
     content = 'Default Transaction',
     category = 'Default',
     cost = -1,
-    accountname = 'Card';
+    account = '',
+    tags = '';
 
   // provide a blank map to generate a transactionObj from
   Map<String, dynamic> getBlankMap() {
@@ -72,7 +77,8 @@ class TransactionObj {
       'Description': '',
       'Category': '',
       'Cost': 0,
-      'Account': ''
+      'Account': '',
+      'Tags': ''
     };
   }
 
@@ -85,7 +91,8 @@ class TransactionObj {
       'Description': true,
       'Category': true, 
       'Cost': true,
-      'Account': false
+      'Account': false,
+      'Tags': true
     };
   }
 
@@ -98,7 +105,8 @@ class TransactionObj {
       'Description': 'TEXT',
       'Category': 'TEXT', 
       'Cost': 'DOUBLE',
-      'Account': 'TEXT'
+      'Account': 'TEXT',
+      'Tags': 'TEXT'
     };
   }
 }
