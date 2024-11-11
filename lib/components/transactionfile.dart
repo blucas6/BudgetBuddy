@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:budgetbuddy/config/appconfig.dart';
+import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/services/database_service.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 import 'package:csv/csv.dart';
@@ -98,21 +98,32 @@ class TransactionFile {
             debugPrint("Key does not exists -> $key");
           }
         }
+        // add account type as a column
+        transactionMap['Account'] = account;
         // done going through columns, add transactionobj to list
         TransactionObj currentTrans = TransactionObj.loadFromMap(transactionMap);
         data.add(currentTrans);
-        debugPrint("New transaction obj:");
-        print(currentTrans.getProperties());
       }
       return true;
     }
     return false;
   }
 
-  void addTransactionToDatabase() {
-    // go through the list of transactionobjs and add the database
-    for (TransactionObj trans in data) {
-      dbs.addTransaction(trans);
+  Future<bool> addTransactionToDatabase() async {
+    // check to make sure the account exists first
+    try {
+      if (!await dbs.checkIfAccountExists(account)) {
+        dbs.addAccount(account);
+      }
+      // go through the list of transactionobjs and add the database
+      for (TransactionObj trans in data) {
+        dbs.addTransaction(trans);
+      }
+      return true;
     }
+    catch (e) {
+      debugPrint("Failed while adding transactions -> $e");
+    }
+    return false;
   }
 }
