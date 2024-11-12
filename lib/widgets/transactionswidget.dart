@@ -5,12 +5,13 @@ import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 class TransactionWidget extends StatefulWidget {
-  const TransactionWidget({Key? key}) : super(key: key);
+  const TransactionWidget({super.key});
   @override
   State<TransactionWidget> createState() => TransactionWidgetState();
 }
 
 class TransactionWidgetState extends State<TransactionWidget> {
+  
   List<TransactionObj> currentTransactions = [];   // list of transaction objects
   List<List<String>> currentTransactionStrings = [];  // list of transaction objects as strings for display
   List<bool?> columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);   // fill null for however many columns we have
@@ -38,7 +39,6 @@ class TransactionWidgetState extends State<TransactionWidget> {
     List<Container> myHeaders = [];   // holds header objects
 
     // create default transaction for display structure (in case no data is loaded)
-
     // use the first transaction for layout
     Map<String, dynamic> props = TransactionObj.defaultTransaction().getProperties();
     Map<String, dynamic> displayProps = TransactionObj.defaultTransaction().getDisplayProperties();
@@ -228,6 +228,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
           } else {
             val = DateFormat('yyyy-MM-dd').format(value); // parse date
           }
+        } else if (value is List) {
+          val = value.join(" ");
         } else if (value == null) {
           val = ''; // don't display null params
         } else {
@@ -282,17 +284,21 @@ class TransactionWidgetState extends State<TransactionWidget> {
                 }).toList(),
                 onChanged: (String? newValue) {
                   setState(() {
-                    columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
-                    _selectedTag = newValue;
-                    int id = int.parse(currentTransactionStrings[index][0]);
-                    for (int i=0; i<currentTransactions.length; i++) {
-                      if (currentTransactions[i].id == id) {
-                        currentTransactions[i].tags = newValue;
+                      if (newValue != null) {
+                        columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
+                        _selectedTag = newValue;
+                        int id = int.parse(currentTransactionStrings[index][0]);
+                        for (int i=0; i<currentTransactions.length; i++) {
+                          if (currentTransactions[i].id == id) {
+                            currentTransactions[i].tags.add(newValue);
+                            datadistributer.updateData(id, 'Tags', currentTransactions[i].tags.join(";"));
+                          }
+                        }
+                        currentTransactionStrings = transactionsToStrings(currentTransactions);
+                        Navigator.of(context).pop();
                       }
                     }
-                    currentTransactionStrings = transactionsToStrings(currentTransactions);
-                    Navigator.of(context).pop();
-                  });
+                  );
                 },
               ),
               IconButton(
@@ -302,7 +308,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
                     int id = int.parse(currentTransactionStrings[index][0]);
                     for (int i=0; i<currentTransactions.length; i++) {
                       if (currentTransactions[i].id == id) {
-                        currentTransactions[i].tags = '';
+                        currentTransactions[i].tags = [];
+                        datadistributer.updateData(id, 'Tags', '');
                       }
                     }
                     currentTransactionStrings = transactionsToStrings(currentTransactions);

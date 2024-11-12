@@ -11,6 +11,12 @@ class Datadistributer {
   // connection to database
   DatabaseService dbs = DatabaseService();
 
+  Future<bool> updateData(int id, String column, String value) async {
+    // TODO: Pass old and new transaction and let this function determine
+    // the values that changed to update the database
+    return await dbs.updateTransactionByID(id, column, value);
+  }
+
   // gets all available transactions from the database
   Future<List<TransactionObj>> loadData() async {
     return await dbs.getTransactions();

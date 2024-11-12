@@ -4,7 +4,9 @@ class TransactionObj {
   late DateTime date;
   int? id, cardn;
   double? cost;
-  String? content, category, account, tags;
+  String? content, category, account;
+  late List<String> tags;
+  String separator = ';';
 
   TransactionObj(
       {this.id,
@@ -14,8 +16,9 @@ class TransactionObj {
       this.category,
       this.cost,
       this.account,
-      this.tags}) {
+      var sometags}) {
     date = dates != null ? DateTime.parse(dates) : DateTime.parse('1980-01-01');
+    tags = sometags is String ? sometags.split(separator) : (sometags != null ? sometags : []);
   }
 
   // return a map of the object
@@ -42,7 +45,7 @@ class TransactionObj {
       'Category': category,
       'Cost': cost,
       'Account': account,
-      'Tags': tags
+      'Tags': tags.join(separator)
     };
   }
 
@@ -55,7 +58,7 @@ class TransactionObj {
     category = map['Category'],
     cost = map['Cost'] is int ? map['Cost'].toDouble() : map['Cost'],   // in case of integers
     account = map['Account'],
-    tags = map['Tags'];
+    tags = map['Tags'] is String ? map['Tags'].split(';') : map['Tags'];
 
   // provide a sample transaction
   TransactionObj.defaultTransaction() :
@@ -66,7 +69,7 @@ class TransactionObj {
     category = 'Default',
     cost = -1,
     account = '',
-    tags = '';
+    tags = [];
 
   // provide a blank map to generate a transactionObj from
   Map<String, dynamic> getBlankMap() {
@@ -78,7 +81,7 @@ class TransactionObj {
       'Category': '',
       'Cost': 0,
       'Account': '',
-      'Tags': ''
+      'Tags': List<String>.empty(growable: true)
     };
   }
 
