@@ -14,7 +14,7 @@ class ProfileViewState extends State<ProfileView> {
   Map<String, double> profile = {
     "totalspending": 0,
     "totalincome": 0,
-    "totalassets": 0
+    "totalassets": 0,
   };
   Datadistributer datadistributer = Datadistributer();
 
@@ -50,7 +50,7 @@ class ProfileViewState extends State<ProfileView> {
           ),),
           Text('Total Spending: ${profile['totalspending']!.toStringAsFixed(2)}'),
           Text('Total Income: ${profile['totalincome']!.toStringAsFixed(2)}'),
-          Text('Total Assets: ${profile['totalassets']!.toStringAsFixed(2)}'),
+          Text('Net Worth: ${profile['totalassets']!.toStringAsFixed(2)}'),
         ]
       ),
     );

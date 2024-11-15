@@ -47,7 +47,7 @@ class Datadistributer {
     return {
       'totalspending': totalspending,
       'totalincome': totalincome,
-      'totalassets': totalincome - totalspending
+      'totalassets': totalincome + totalspending
       };
   }
 
