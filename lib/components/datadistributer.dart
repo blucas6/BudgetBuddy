@@ -11,6 +11,12 @@ class Datadistributer {
   // connection to database
   DatabaseService dbs = DatabaseService();
 
+  Future<bool> updateData(int id, String column, String value) async {
+    // TODO: Pass old and new transaction and let this function determine
+    // the values that changed to update the database
+    return await dbs.updateTransactionByID(id, column, value);
+  }
+
   // gets all available transactions from the database
   Future<List<TransactionObj>> loadData() async {
     return await dbs.getTransactions();
@@ -24,6 +30,25 @@ class Datadistributer {
       accountlist.add(row['name']);
     }
     return accountlist;
+  }
+
+  // get the total spending over a period
+  Future<Map<String,double>> loadProfile() async {
+    double totalspending = 0;
+    double totalincome = 0;
+    List<TransactionObj> allTransactions = await dbs.getTransactions();
+    for (TransactionObj row in allTransactions) {
+      if (row.cost! < 0) {
+        totalspending += row.cost!;
+      } else {
+        totalincome += row.cost!;
+      }
+    }
+    return {
+      'totalspending': totalspending,
+      'totalincome': totalincome,
+      'totalassets': totalincome + totalspending
+      };
   }
 
 }

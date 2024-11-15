@@ -100,12 +100,14 @@ class TransactionFile {
               if (keyFormat['parsing'] == 'dateformat') {
                 // check the parsing format for the proper datetime parsing format
                 value = DateFormat(keyFormat['formatter']).parse(value);
+              } else if (keyFormat['parsing'] == 'spending' && keyFormat['formatter'] == 'inverse') {
+                value = -value.toDouble();
               }
             }
             // key is present therefore place the value of the csv into the transaction map
             transactionMap[keyFormat['column']] = value;
           } else {
-            debugPrint("Key does not exists -> $key");
+            // debugPrint("Key does not exists -> $key");
           }
         }
         // add account type as a column

@@ -11,7 +11,9 @@
                 "column": "Description"
             },
             "Amount": {
-                "column": "Cost"
+                "column": "Cost",
+                "parsing": "spending",
+                "formatter": "normal"
             }
         }
     },
@@ -33,7 +35,9 @@
                 "column": "Category"
             },
             "Debit": {
-                "column": "Cost"
+                "column": "Cost",
+                "parsing": "spending",
+                "formatter": "inverse"
             }
         }
     }

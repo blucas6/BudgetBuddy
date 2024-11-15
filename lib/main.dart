@@ -1,5 +1,6 @@
 import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
+import 'package:budgetbuddy/widgets/profileview.dart';
 import 'package:budgetbuddy/widgets/transactionswidget.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetbuddy/widgets/account_bar.dart';
@@ -61,10 +62,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // get the key to the transaction widget state
   final GlobalKey<TransactionWidgetState> _transactionWidgetStateKey = GlobalKey<TransactionWidgetState>();
+  final GlobalKey<ProfileViewState> _profileViewStateKey = GlobalKey<ProfileViewState>();
 
   void handleUpdate() {
     // trigger the widget to reload its state
     _transactionWidgetStateKey.currentState?.loadTransactions();
+    _profileViewStateKey.currentState?.loadData();
   }
 
   @override
@@ -82,7 +85,12 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AccountBar(newDataTrigger: () => handleUpdate(),),
+                Column(
+                  children: [
+                    AccountBar(newDataTrigger: () => handleUpdate(),),
+                    ProfileView(key: _profileViewStateKey)
+                  ]
+                ),
                 TransactionWidget(key: _transactionWidgetStateKey,),
                 MonthlyPieChart(),
               ],

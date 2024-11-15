@@ -5,16 +5,20 @@ import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 class TransactionWidget extends StatefulWidget {
-  const TransactionWidget({Key? key}) : super(key: key);
+  const TransactionWidget({super.key});
   @override
   State<TransactionWidget> createState() => TransactionWidgetState();
 }
 
 class TransactionWidgetState extends State<TransactionWidget> {
+  
   List<TransactionObj> currentTransactions = [];   // list of transaction objects
   List<List<String>> currentTransactionStrings = [];  // list of transaction objects as strings for display
   List<bool?> columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);   // fill null for however many columns we have
   Map<int, TableColumnWidth> columnSizes = {};  // keep track of sizing for columns
+  List<List<bool>> rowHovers = [];
+  String? _selectedTag;
+  List<String> possibleTags = ['Hidden', 'Rent', 'Savings'];
   Datadistributer datadistributer = Datadistributer();
   // load transactions on startup
   @override
@@ -35,11 +39,14 @@ class TransactionWidgetState extends State<TransactionWidget> {
     List<Container> myHeaders = [];   // holds header objects
 
     // create default transaction for display structure (in case no data is loaded)
-
     // use the first transaction for layout
     Map<String, dynamic> props = TransactionObj.defaultTransaction().getProperties();
     Map<String, dynamic> displayProps = TransactionObj.defaultTransaction().getDisplayProperties();
     int tableColumnIndex = 0;   // keep track of index for column sizing
+    int totalColumnsDisplayed = 0;
+    displayProps.forEach((column, toDisplay) {
+      if (toDisplay) totalColumnsDisplayed++;
+    });
     int sortIndex = 0;  // keep track of index for sorting
 
     // loop through the transaction to get the columns
@@ -62,7 +69,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
               color: headerColor
           );
         // topright rounded box
-        } else if(tableColumnIndex == props.length-1) {
+        } else if(tableColumnIndex == totalColumnsDisplayed-1) {
           decoration = BoxDecoration(
               borderRadius: BorderRadius.only(topRight: Radius.circular(10)),
               color: headerColor
@@ -96,41 +103,51 @@ class TransactionWidgetState extends State<TransactionWidget> {
     return myHeaders;
   }
 
-  Table createDataTable() {
+  Table createDataTable(BuildContext context) {
     List<TableRow> myRows = [];   // holds all rows for the table
     Map<String, dynamic> displayProperties = TransactionObj.defaultTransaction().getDisplayProperties();
     // loop through the transactions to create the cells and rows
-    int rowcount = 0;   // keep track of rows for coloring
-    for (List<String> row in currentTransactionStrings) {
+    for (int rowc=0; rowc<currentTransactionStrings.length; rowc++) {
+      if (rowHovers.length == rowc) {
+        rowHovers.add(List.filled(TransactionObj().getProperties().keys.length, false));
+      }
       List<TableCell> myCells = [];
-      int cellcount = 0;  // keep track of cells to determine what to display
       // loop through properties and only display cells that need to be displayed
-      displayProperties.forEach((key, isDisplay) {
-        if (isDisplay) {
-          String cell = row[cellcount];
+      List<MapEntry<String,dynamic>> entries = displayProperties.entries.toList();
+      for (int colc=0; colc<entries.length; colc++) {
+        if (entries[colc].value as bool) {
+          String cellText = currentTransactionStrings[rowc][colc];
           myCells.add(
             TableCell(
-              child: Container(
-                height: 30,
-                padding: EdgeInsets.only(left: 10),
-                alignment: Alignment.centerLeft,
-                color: rowcount % 2 != 0 ? Color.fromARGB(255, 255, 255, 255) : Color.fromARGB(255, 201, 240, 255),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Text(cell)),
+              child: MouseRegion(
+                onEnter: (_) => onHover(rowc, colc, true),
+                onExit: (_) => onHover(rowc, colc, false),
+                child: GestureDetector(
+                  onTap: () {
+                    showEditMenu(context, rowc); 
+                  },
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    height: 30,
+                    padding: EdgeInsets.only(left: 10),
+                    alignment: Alignment.centerLeft,
+                    color: rowc % 2 != 0 ? (rowHovers[rowc][colc] ? Color.fromARGB(255, 233, 233, 233) : Color.fromARGB(255, 255, 255, 255)) : (rowHovers[rowc][colc] ? Color.fromARGB(255, 193, 222, 233) : Color.fromARGB(255, 201, 240, 255)),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Text(cellText)),
+                  ),
+                ),
               ),
             )
           );
         }
-        cellcount++;
-      });
+      }
       // add finished row
       myRows.add(
         TableRow(
           children: myCells,
         )
       );
-      rowcount++;
     }
     return Table(
         border: TableBorder.symmetric(),
@@ -138,6 +155,14 @@ class TransactionWidgetState extends State<TransactionWidget> {
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         children: myRows,
       );
+  }
+
+  void onHover(int rc, int cc, bool isHover) {
+    setState(() {
+      for(int i=0; i<rowHovers[rc].length; i++) {
+        rowHovers[rc][i] = isHover;
+      }
+    });
   }
 
   void sortMe(int cindex) {
@@ -203,6 +228,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
           } else {
             val = DateFormat('yyyy-MM-dd').format(value); // parse date
           }
+        } else if (value is List) {
+          val = value.join(" ");
         } else if (value == null) {
           val = ''; // don't display null params
         } else {
@@ -240,6 +267,71 @@ class TransactionWidgetState extends State<TransactionWidget> {
     return IconButton(onPressed: () {sortMe(cindex);}, icon: myIcon, padding: EdgeInsets.zero);
   }
 
+  void showEditMenu(BuildContext context, int index) {
+    showDialog(context: context, builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Add a tag"),
+        content: Container(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Tag Transaction: "),
+              DropdownButton(
+                value: _selectedTag,
+                hint: Text('Select a tag'),
+                items: possibleTags.map((String tag) {
+                  return DropdownMenuItem(value: tag, child: Text(tag));
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                      if (newValue != null) {
+                        columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
+                        _selectedTag = newValue;
+                        int id = int.parse(currentTransactionStrings[index][0]);
+                        for (int i=0; i<currentTransactions.length; i++) {
+                          if (currentTransactions[i].id == id) {
+                            currentTransactions[i].tags.add(newValue);
+                            datadistributer.updateData(id, 'Tags', currentTransactions[i].tags.join(";"));
+                          }
+                        }
+                        currentTransactionStrings = transactionsToStrings(currentTransactions);
+                        Navigator.of(context).pop();
+                      }
+                    }
+                  );
+                },
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
+                    int id = int.parse(currentTransactionStrings[index][0]);
+                    for (int i=0; i<currentTransactions.length; i++) {
+                      if (currentTransactions[i].id == id) {
+                        currentTransactions[i].tags = [];
+                        datadistributer.updateData(id, 'Tags', '');
+                      }
+                    }
+                    currentTransactionStrings = transactionsToStrings(currentTransactions);
+                    Navigator.of(context).pop();
+                  });
+                },
+                icon: const Icon(Icons.delete_outline)
+              )
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Close'))
+          ],
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -254,7 +346,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
           ),
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child: createDataTable()
+            child: createDataTable(context)
           ),
         )
       ]),
