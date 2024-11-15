@@ -7,7 +7,8 @@ import 'package:budgetbuddy/components/transactionfile.dart';
 class AccountBar extends StatefulWidget {
   // this callback triggers the main app to reload all widgets
   final void Function() newDataTrigger;
-  const AccountBar({super.key, required this.newDataTrigger});
+  final Datadistributer datadistributer;
+  const AccountBar({super.key, required this.newDataTrigger, required this.datadistributer});
 
   @override
   State<AccountBar> createState() => _AccountBarState();
@@ -15,7 +16,6 @@ class AccountBar extends StatefulWidget {
 
 class _AccountBarState extends State<AccountBar> {
   List<String> accountList = [];
-  Datadistributer datadistributer = Datadistributer();
   @override 
   void initState() {
     super.initState();
@@ -24,7 +24,7 @@ class _AccountBarState extends State<AccountBar> {
 
   void loadAccounts() async {
     // on load, get previously stored data from the db
-    accountList = await datadistributer.loadAccountList();
+    accountList = await widget.datadistributer.loadAccountList();
     setState(() {});
   }
 
@@ -46,7 +46,10 @@ class _AccountBarState extends State<AccountBar> {
         // if account name exists in config, tell the object to add the file data to the database
         if (account.isNotEmpty) {
           debugPrint("Adding transactions to database");
-          await tfile.addTransactionToDatabase();
+          // load new data to database
+          await widget.datadistributer.addTransactionFileToDatabase(tfile);
+          // load accounts list, data distributer should be up to date
+          accountList = await widget.datadistributer.loadAccountList();
         }
       } else {
         debugPrint("Error loading transaction file!");
@@ -55,8 +58,6 @@ class _AccountBarState extends State<AccountBar> {
 
     setState(() {
       if (account.isNotEmpty) {
-        // success, register account to display
-        accountList.add(account);
         // trigger the callback to reload all widgets
         widget.newDataTrigger();
       } else {

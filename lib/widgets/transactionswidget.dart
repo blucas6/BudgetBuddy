@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 class TransactionWidget extends StatefulWidget {
-  const TransactionWidget({super.key});
+  final Datadistributer datadistributer;
+  TransactionWidget({super.key, required this.datadistributer});
   @override
   State<TransactionWidget> createState() => TransactionWidgetState();
 }
@@ -19,7 +20,6 @@ class TransactionWidgetState extends State<TransactionWidget> {
   List<List<bool>> rowHovers = [];
   String? _selectedTag;
   List<String> possibleTags = ['Hidden', 'Rent', 'Savings'];
-  Datadistributer datadistributer = Datadistributer();
   // load transactions on startup
   @override
   void initState() {
@@ -29,7 +29,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
 
   void loadTransactions() async {
     debugPrint("Reloading transaction widget");
-    currentTransactions = await datadistributer.loadData();
+    currentTransactions = await widget.datadistributer.allTransactions;
     // turn data to strings to display
     currentTransactionStrings = transactionsToStrings(currentTransactions);
     setState(() {});
@@ -166,6 +166,9 @@ class TransactionWidgetState extends State<TransactionWidget> {
   }
 
   void sortMe(int cindex) {
+    if (currentTransactions.isEmpty) {
+      return;
+    }
     // sort transaction data depending on the column index
     // get transactions as a map array
     List<Map<String,dynamic>> sortedTransactionMap = [];
@@ -291,7 +294,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
                         for (int i=0; i<currentTransactions.length; i++) {
                           if (currentTransactions[i].id == id) {
                             currentTransactions[i].tags.add(newValue);
-                            datadistributer.updateData(id, 'Tags', currentTransactions[i].tags.join(";"));
+                            widget.datadistributer.updateData(id, 'Tags', currentTransactions[i].tags.join(";"));
                           }
                         }
                         currentTransactionStrings = transactionsToStrings(currentTransactions);
@@ -309,7 +312,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
                     for (int i=0; i<currentTransactions.length; i++) {
                       if (currentTransactions[i].id == id) {
                         currentTransactions[i].tags = [];
-                        datadistributer.updateData(id, 'Tags', '');
+                        widget.datadistributer.updateData(id, 'Tags', '');
                       }
                     }
                     currentTransactionStrings = transactionsToStrings(currentTransactions);

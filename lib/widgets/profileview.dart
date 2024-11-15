@@ -4,7 +4,8 @@ import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:flutter/material.dart';
 
 class ProfileView extends StatefulWidget {
-  const ProfileView({super.key});
+  final Datadistributer datadistributer;
+  const ProfileView({super.key, required this.datadistributer});
 
   @override
   State<ProfileView> createState() => ProfileViewState();
@@ -16,7 +17,6 @@ class ProfileViewState extends State<ProfileView> {
     "totalincome": 0,
     "totalassets": 0,
   };
-  Datadistributer datadistributer = Datadistributer();
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class ProfileViewState extends State<ProfileView> {
 
   void loadData() async {
     debugPrint("Reloading profile widget");
-    profile = await datadistributer.loadProfile();
+    profile = await widget.datadistributer.loadProfile();
     setState(() {});
   }
 

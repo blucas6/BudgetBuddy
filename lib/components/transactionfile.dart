@@ -18,11 +18,12 @@ class TransactionFile {
 
   TransactionFile(this.file);
 
+  // load this object with data
   Future<bool> load() async {
-    bool status = await readFile(file);
-    status = await identifyAccount();
-    status = loadTransactionObjs();
-    return status;
+    bool readfilestatus = await readFile(file);
+    bool identifyaccountstatus = await identifyAccount();
+    bool loadtransactionsstatus = loadTransactionObjs();
+    return readfilestatus && identifyaccountstatus && loadtransactionsstatus;
   }
 
   Future<bool> identifyAccount() async {
@@ -117,24 +118,6 @@ class TransactionFile {
         data.add(currentTrans);
       }
       return true;
-    }
-    return false;
-  }
-
-  Future<bool> addTransactionToDatabase() async {
-    // check to make sure the account exists first
-    try {
-      if (!await dbs.checkIfAccountExists(account)) {
-        dbs.addAccount(account);
-      }
-      // go through the list of transactionobjs and add the database
-      for (TransactionObj trans in data) {
-        dbs.addTransaction(trans);
-      }
-      return true;
-    }
-    catch (e) {
-      debugPrint("Failed while adding transactions -> $e");
     }
     return false;
   }

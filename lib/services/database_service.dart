@@ -123,8 +123,8 @@ class DatabaseService {
       return data.map((entry) => TransactionObj.loadFromMap(entry)).toList();
     } catch (e) {
       debugPrint('Read transactions failed: $e');
-      return [];
     }
+    return [];
   }
 
   Future<bool> updateTransactionByID(int id, String column, dynamic value) async {

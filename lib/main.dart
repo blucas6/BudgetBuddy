@@ -1,4 +1,6 @@
 import 'package:budgetbuddy/components/appconfig.dart';
+import 'package:budgetbuddy/components/datadistributer.dart';
+import 'package:budgetbuddy/widgets/filterwidget.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
 import 'package:budgetbuddy/widgets/profileview.dart';
 import 'package:budgetbuddy/widgets/transactionswidget.dart';
@@ -30,11 +32,6 @@ class _MyAppState extends State<MyApp> {
   final dbService = DatabaseService();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BudgetBuddy',
@@ -44,13 +41,15 @@ class _MyAppState extends State<MyApp> {
         ),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Home'),
+      home: MyHomePage(title: 'Home'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  // initialize data pipeline
+  final Datadistributer datadistributer = Datadistributer();
+  MyHomePage({super.key, required this.title});
 
   final String title;
 
@@ -63,11 +62,13 @@ class _MyHomePageState extends State<MyHomePage> {
   // get the key to the transaction widget state
   final GlobalKey<TransactionWidgetState> _transactionWidgetStateKey = GlobalKey<TransactionWidgetState>();
   final GlobalKey<ProfileViewState> _profileViewStateKey = GlobalKey<ProfileViewState>();
+  final GlobalKey<FilterWidgetState> _filterWidgetStateKey = GlobalKey<FilterWidgetState>();
 
   void handleUpdate() {
     // trigger the widget to reload its state
     _transactionWidgetStateKey.currentState?.loadTransactions();
     _profileViewStateKey.currentState?.loadData();
+    _filterWidgetStateKey.currentState?.loadData();
   }
 
   @override
@@ -87,11 +88,16 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 Column(
                   children: [
-                    AccountBar(newDataTrigger: () => handleUpdate(),),
-                    ProfileView(key: _profileViewStateKey)
+                    AccountBar(newDataTrigger: () => handleUpdate(), datadistributer: widget.datadistributer),
+                    ProfileView(key: _profileViewStateKey, datadistributer: widget.datadistributer)
                   ]
                 ),
-                TransactionWidget(key: _transactionWidgetStateKey,),
+                Column(
+                  children: [
+                    FilterWidget(newDataTrigger: () => handleUpdate(), datadistributer: widget.datadistributer),
+                    TransactionWidget(key: _transactionWidgetStateKey, datadistributer: widget.datadistributer)
+                  ]
+                ),
                 MonthlyPieChart(),
               ],
             ),
