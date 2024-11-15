@@ -8,17 +8,17 @@ import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
 class TransactionFile {
-  File file;  // the actual transaction file
-  String? headers;  // headers for the file (used in identifying the account type)
-  List<List<dynamic>> csvData = [];   // raw data from the csv
-  List<TransactionObj> data = [];   // transactionObjs loaded from the csv
-  String account = '';  // will be loaded with the account name
-  DatabaseService dbs = DatabaseService();
-  Appconfig appconfig = Appconfig();
+  File file;                                // the actual transaction file
+  String? headers;                          // headers for the file (used in identifying the account type)
+  List<List<dynamic>> csvData = [];         // raw data from the csv
+  List<TransactionObj> data = [];           // transactionObjs loaded from the csv
+  String account = '';                      // will be loaded with the account name
+  DatabaseService dbs = DatabaseService();  // connection to database instance
+  Appconfig appconfig = Appconfig();        // application config for parsing values
 
   TransactionFile(this.file);
 
-  // load this object with data
+  // on load, locate the account name and load all data
   Future<bool> load() async {
     bool readfilestatus = await readFile(file);
     bool identifyaccountstatus = await identifyAccount();
