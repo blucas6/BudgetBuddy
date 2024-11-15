@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 
 class FilterWidget extends StatefulWidget {
   // this callback triggers the main app to reload all widgets
-  final void Function() newDataTrigger;
+  final void Function(String? year, String? month) newFilterTrigger;
   final Datadistributer datadistributer;
-  const FilterWidget({super.key, required this.newDataTrigger, required this.datadistributer});
+  const FilterWidget({super.key, required this.newFilterTrigger, required this.datadistributer});
 
   @override  
   State<FilterWidget> createState() => FilterWidgetState();
@@ -27,12 +27,15 @@ class FilterWidgetState extends State<FilterWidget> {
     loadData();
   }
 
+  // reloads the widgets data and rebuilds it
   void loadData() async {
+    currentMonth = null;
+    currentYear = null;
     dataRange = await widget.datadistributer.getTotalDateRange();
-    print(dataRange);
     setState(() {});
   }
 
+  // creates the dropdown for the months
   List<DropdownMenuItem> getMonthChoices() {
     List<DropdownMenuItem> choices = [];
     if (currentYear != null && dataRange.containsKey(currentYear)) {
@@ -48,6 +51,7 @@ class FilterWidgetState extends State<FilterWidget> {
     return choices;
   }
 
+  // creates the dropdown for the year
   List<DropdownMenuItem> getYearChoices() {
     List<DropdownMenuItem> choices = [];
     dataRange.forEach((year, months) {
@@ -74,7 +78,7 @@ class FilterWidgetState extends State<FilterWidget> {
               onChanged: (dynamic newValue) {
                 currentYear = newValue;
                 currentMonth = null;
-                // filterTransactions(newValue);
+                widget.newFilterTrigger(currentYear, currentMonth);
                 setState(() {});
               }
             ),
@@ -84,7 +88,7 @@ class FilterWidgetState extends State<FilterWidget> {
               items: getMonthChoices(), 
               onChanged: (dynamic newValue) {
                 currentMonth = newValue;
-                // filterTransactions(newValue);
+                widget.newFilterTrigger(currentYear, currentMonth);
                 setState(() {});
               }
             )

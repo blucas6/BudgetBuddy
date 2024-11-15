@@ -71,6 +71,13 @@ class _MyHomePageState extends State<MyHomePage> {
     _filterWidgetStateKey.currentState?.loadData();
   }
 
+  void handleFilter(String? year, String? month) {
+    // trigger the widgets to reload their filters
+    if (year != null && month != null) {
+      _transactionWidgetStateKey.currentState?.applyFilters(year, month);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 Column(
                   children: [
-                    FilterWidget(newDataTrigger: () => handleUpdate(), datadistributer: widget.datadistributer),
+                    FilterWidget(newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
                     TransactionWidget(key: _transactionWidgetStateKey, datadistributer: widget.datadistributer)
                   ]
                 ),

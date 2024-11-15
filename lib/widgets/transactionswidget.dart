@@ -13,7 +13,8 @@ class TransactionWidget extends StatefulWidget {
 
 class TransactionWidgetState extends State<TransactionWidget> {
   
-  List<TransactionObj> currentTransactions = [];   // list of transaction objects
+  List<TransactionObj> allTransactions = [];   // list of transaction objects
+  List<TransactionObj> currentFilteredTransactions = [];  // sorts them based on existing filters
   List<List<String>> currentTransactionStrings = [];  // list of transaction objects as strings for display
   List<bool?> columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);   // fill null for however many columns we have
   Map<int, TableColumnWidth> columnSizes = {};  // keep track of sizing for columns
@@ -29,12 +30,28 @@ class TransactionWidgetState extends State<TransactionWidget> {
 
   void loadTransactions() async {
     debugPrint("Reloading transaction widget");
-    currentTransactions = await widget.datadistributer.allTransactions;
+    allTransactions = await widget.datadistributer.allTransactions;
+    currentFilteredTransactions = allTransactions;
     // turn data to strings to display
-    currentTransactionStrings = transactionsToStrings(currentTransactions);
+    currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
     setState(() {});
   }
 
+  // load the filtered transaction object with data
+  void applyFilters(String year, String month) {
+    currentFilteredTransactions = [];
+    // go through the transaction object
+    for (TransactionObj trans in allTransactions) {
+      if (trans.year == year && trans.month == month) {
+        currentFilteredTransactions.add(trans);
+      }
+    }
+    currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
+  }
+
+  // create a the headers for the data table
+  // the headers depend on the transaction obj interface
+  // does not depend on any loaded data
   List<Container> createDataTableHeaders() {
     List<Container> myHeaders = [];   // holds header objects
 
@@ -103,6 +120,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
     return myHeaders;
   }
 
+  // create the data rows for the data table
+  // the data rows depend on the current transactions strings that are loaded
   Table createDataTable(BuildContext context) {
     List<TableRow> myRows = [];   // holds all rows for the table
     Map<String, dynamic> displayProperties = TransactionObj.defaultTransaction().getDisplayProperties();
@@ -166,17 +185,17 @@ class TransactionWidgetState extends State<TransactionWidget> {
   }
 
   void sortMe(int cindex) {
-    if (currentTransactions.isEmpty) {
+    if (currentFilteredTransactions.isEmpty) {
       return;
     }
     // sort transaction data depending on the column index
     // get transactions as a map array
     List<Map<String,dynamic>> sortedTransactionMap = [];
-    for (TransactionObj ctr in currentTransactions) {
+    for (TransactionObj ctr in currentFilteredTransactions) {
       sortedTransactionMap.add(ctr.getProperties());
     }
     // find the column of interest as a key
-    String ourkey = currentTransactions[0].getProperties().keys.toList()[cindex];
+    String ourkey = currentFilteredTransactions[0].getProperties().keys.toList()[cindex];
     // set all columns besides the one of interest to null
     for (int i=0; i<columnSorts.length; i++) {
       columnSorts[i] = cindex != i ? null : columnSorts[i];
@@ -291,13 +310,13 @@ class TransactionWidgetState extends State<TransactionWidget> {
                         columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
                         _selectedTag = newValue;
                         int id = int.parse(currentTransactionStrings[index][0]);
-                        for (int i=0; i<currentTransactions.length; i++) {
-                          if (currentTransactions[i].id == id) {
-                            currentTransactions[i].tags.add(newValue);
-                            widget.datadistributer.updateData(id, 'Tags', currentTransactions[i].tags.join(";"));
+                        for (int i=0; i<currentFilteredTransactions.length; i++) {
+                          if (currentFilteredTransactions[i].id == id) {
+                            currentFilteredTransactions[i].tags.add(newValue);
+                            widget.datadistributer.updateData(id, 'Tags', currentFilteredTransactions[i].tags.join(";"));
                           }
                         }
-                        currentTransactionStrings = transactionsToStrings(currentTransactions);
+                        currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
                         Navigator.of(context).pop();
                       }
                     }
@@ -309,13 +328,13 @@ class TransactionWidgetState extends State<TransactionWidget> {
                   setState(() {
                     columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
                     int id = int.parse(currentTransactionStrings[index][0]);
-                    for (int i=0; i<currentTransactions.length; i++) {
-                      if (currentTransactions[i].id == id) {
-                        currentTransactions[i].tags = [];
+                    for (int i=0; i<currentFilteredTransactions.length; i++) {
+                      if (currentFilteredTransactions[i].id == id) {
+                        currentFilteredTransactions[i].tags = [];
                         widget.datadistributer.updateData(id, 'Tags', '');
                       }
                     }
-                    currentTransactionStrings = transactionsToStrings(currentTransactions);
+                    currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
                     Navigator.of(context).pop();
                   });
                 },

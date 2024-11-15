@@ -107,24 +107,18 @@ class Datadistributer {
   //   <year2> : [month4, month5, ..] }
   Future<Map<String, dynamic>> getTotalDateRange() async {
     await ensureInitialized();
-    List<String> monthNames = [
-    "January", "February", "March", "April", "May", "June", 
-    "July", "August", "September", "October", "November", "December"
-    ];
     Map<String, dynamic> totalRange = {};
     for (TransactionObj row in _allTransactions) {
-      String year = row.date.year.toString();
-      String month = monthNames[row.date.month - 1];
       // check if year is in map
-      if (!totalRange.containsKey(year)) {
+      if (!totalRange.containsKey(row.year)) {
         // if not, add it
-        totalRange[row.date.year.toString()] = [];
+        totalRange[row.year] = [];
       }
       // first check if month has an associated year in map
-      if (totalRange.containsKey(year)
-      && !totalRange[year].contains(month)) {
+      if (totalRange.containsKey(row.year)
+      && !totalRange[row.year].contains(row.month)) {
         // if not, add it
-        totalRange[year].add(month);
+        totalRange[row.year].add(row.month);
       }
     }
     return totalRange;
