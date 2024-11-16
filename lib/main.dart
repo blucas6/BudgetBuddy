@@ -1,5 +1,6 @@
 import 'package:budgetbuddy/config/appconfig.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
+import 'package:budgetbuddy/widgets/monthlybarchart.dart'; //  import
 import 'package:budgetbuddy/widgets/transactionswidget.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetbuddy/widgets/account_bar.dart';
@@ -78,6 +79,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 MonthlyPieChart(),
               ],
             ),
+          ),
+          Flexible(
+            fit: FlexFit.tight,
+            child: MonthlyBarChart(), // 新增 MonthlyBarChart 到畫面上
           ),
         ],
       ),
