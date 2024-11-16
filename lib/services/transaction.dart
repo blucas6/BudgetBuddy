@@ -112,4 +112,18 @@ class TransactionObj {
       'Tags': 'TEXT'
     };
   }
+
+  // getter for the year as a string
+  String get year {
+    return date.year.toString();
+  }
+
+  // getter for the month as a string
+  String get month {
+    List<String> monthNames = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+    ];
+    return monthNames[date.month - 1];
+  }
 }

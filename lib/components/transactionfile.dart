@@ -20,12 +20,13 @@ class TransactionFile {
 
   // on load, locate the account name and load all data
   Future<bool> load() async {
-    bool status = await readFile(file);
-    status = await identifyAccount();
-    status = loadTransactionObjs();
-    return status;
+    bool readfilestatus = await readFile(file);
+    bool identifyaccountstatus = await identifyAccount();
+    bool loadtransactionsstatus = loadTransactionObjs();
+    return readfilestatus && identifyaccountstatus && loadtransactionsstatus;
   }
 
+  // parses the config for the appropriate account type
   Future<bool> identifyAccount() async {
     // check config is loaded
     if (appconfig.accountInfo != null) {
@@ -44,6 +45,7 @@ class TransactionFile {
     return false;
   }
 
+  // reads the file and loads the csvData object
   Future<bool> readFile(File file) async {
     // Check the file extension to determine how to read the file
     if (file.path.endsWith('.csv')) {
@@ -81,6 +83,7 @@ class TransactionFile {
     }
   }
 
+  // loads the data object with transactions from the file
   bool loadTransactionObjs() {
     if (appconfig.accountInfo != null) {
       // start with a default map with all keys already created
@@ -118,24 +121,6 @@ class TransactionFile {
         data.add(currentTrans);
       }
       return true;
-    }
-    return false;
-  }
-
-  Future<bool> addTransactionToDatabase() async {
-    // check to make sure the account exists first
-    try {
-      if (!await dbs.checkIfAccountExists(account)) {
-        dbs.addAccount(account);
-      }
-      // go through the list of transactionobjs and add the database
-      for (TransactionObj trans in data) {
-        dbs.addTransaction(trans);
-      }
-      return true;
-    }
-    catch (e) {
-      debugPrint("Failed while adding transactions -> $e");
     }
     return false;
   }

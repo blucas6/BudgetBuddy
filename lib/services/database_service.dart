@@ -11,6 +11,7 @@ class DatabaseService {
   static final DatabaseService _instance = DatabaseService._constructor();
   factory DatabaseService() => _instance;
 
+  // Tablenames
   static final String transactionTableName = "transactions";
   static final String accountTableName = "accounts";
 
@@ -19,6 +20,7 @@ class DatabaseService {
     loadDatabase();
   }
 
+  // database getter
   Future<Database> get database async {
     // database getter
     if (_db != null) return _db!;
@@ -26,6 +28,7 @@ class DatabaseService {
     return _db!;
   }
 
+  // loads the database if it doesn't exist
   Future<Database> loadDatabase() async {
     // get user area
     final databaseDirPath = await getApplicationSupportDirectory();
@@ -64,6 +67,7 @@ class DatabaseService {
     return db;
   }
 
+  // returns whether an account exists or not
   Future<bool> checkIfAccountExists(String accountName) async {
     try {
       final db = await database;
@@ -76,6 +80,7 @@ class DatabaseService {
     }
   }
 
+  // returns all the accounts in the account table as a list
   Future<List<Map<String,dynamic>>> getAllAccounts() async {
     try {
       final db = await database;
@@ -86,6 +91,7 @@ class DatabaseService {
     }
   }
 
+  // adds an account type to the account table name
   Future<bool> addAccount(String accountName) async {
     // accounts must be added before transaction data because of the
     // foreign key constraint
@@ -100,6 +106,7 @@ class DatabaseService {
     }
   }
 
+  // adds a singular transaction to the transaction table
   Future<bool> addTransaction(TransactionObj trans) async {
     try {
       // sqlite will increment the id, so provide a map with no id
@@ -114,6 +121,7 @@ class DatabaseService {
     }
   }
 
+  // gets all transactions
   Future<List<TransactionObj>> getTransactions() async {
     try {
       final db = await database;
@@ -123,10 +131,11 @@ class DatabaseService {
       return data.map((entry) => TransactionObj.loadFromMap(entry)).toList();
     } catch (e) {
       debugPrint('Read transactions failed: $e');
-      return [];
     }
+    return [];
   }
 
+  // updates a transaction in the database by its id
   Future<bool> updateTransactionByID(int id, String column, dynamic value) async {
     // pass an id to update a transaction at a given column with a certain value
     try {
@@ -146,6 +155,7 @@ class DatabaseService {
     }
   }
 
+  // deletes a transaction by its id
   Future<bool> deleteTransaction(int id) async {
     // pass an id and delete the column at that id
     try {
