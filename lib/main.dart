@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 Column(
                   children: [
-                    FilterWidget(newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
+                    FilterWidget(key: _filterWidgetStateKey, newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
                     TransactionWidget(key: _transactionWidgetStateKey, datadistributer: widget.datadistributer),
                     MonthlyBarChart()
                   ]

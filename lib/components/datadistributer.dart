@@ -54,7 +54,9 @@ class Datadistributer {
     _allTransactions = await dbs.getTransactions();
     _allAccounts = await loadAccountList();
     // label pipeline as ready
-    _initCompleter.complete();
+    if (!_initCompleter.isCompleted) {
+      _initCompleter.complete();
+    }
     debugPrint("Done loading data pipeline!");
   }
 
