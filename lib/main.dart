@@ -2,11 +2,8 @@ import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:budgetbuddy/widgets/filterwidget.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
-<<<<<<< HEAD
-import 'package:budgetbuddy/widgets/monthlybarchart.dart'; //  import
-=======
+import 'package:budgetbuddy/widgets/monthlybarchart.dart';
 import 'package:budgetbuddy/widgets/profileview.dart';
->>>>>>> 6b5b39797f5c8675253b6a8ab859160bce2f758e
 import 'package:budgetbuddy/widgets/transactionswidget.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetbuddy/widgets/account_bar.dart';
