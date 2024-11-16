@@ -4,7 +4,10 @@ import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:flutter/material.dart';
 
 class ProfileView extends StatefulWidget {
-  final Datadistributer datadistributer;
+  // This object displays to the user data associated with the entire profile
+
+  final Datadistributer datadistributer;  // access to pipeline
+
   const ProfileView({super.key, required this.datadistributer});
 
   @override
@@ -12,6 +15,7 @@ class ProfileView extends StatefulWidget {
 }
 
 class ProfileViewState extends State<ProfileView> {
+  // map of data associated with the profile
   Map<String, double> profile = {
     "totalspending": 0,
     "totalincome": 0,
@@ -24,6 +28,7 @@ class ProfileViewState extends State<ProfileView> {
     loadData();
   }
 
+  // load new data
   void loadData() async {
     debugPrint("Reloading profile widget");
     profile = await widget.datadistributer.loadProfile();

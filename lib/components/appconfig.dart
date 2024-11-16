@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Appconfig {
+  // This object serves as the configuration object for the application
+  
   // singleton instance, load on creation
   Appconfig._internal() {
     load();

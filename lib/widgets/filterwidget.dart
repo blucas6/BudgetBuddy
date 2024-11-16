@@ -4,9 +4,13 @@ import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:flutter/material.dart';
 
 class FilterWidget extends StatefulWidget {
+  // This object displays the filtering to the user
+  // Controls the data that the widgets show
+
   // this callback triggers the main app to reload all widgets
   final void Function(String? year, String? month) newFilterTrigger;
-  final Datadistributer datadistributer;
+  final Datadistributer datadistributer;  // connection to the data pipeline
+
   const FilterWidget({super.key, required this.newFilterTrigger, required this.datadistributer});
 
   @override  
@@ -14,8 +18,9 @@ class FilterWidget extends StatefulWidget {
 }
 
 class FilterWidgetState extends State<FilterWidget> {
-  String? currentMonth;
-  String? currentYear;
+  String? currentMonth;   // current month filter
+  String? currentYear;    // current year filter
+
   // dataRange holds the date ranges available per what is in the database
   // the structure is: { <year1> : [month1, month2, ...],
   //                     <year2> : [month4, month5, ..] }
@@ -38,6 +43,7 @@ class FilterWidgetState extends State<FilterWidget> {
   // creates the dropdown for the months
   List<DropdownMenuItem> getMonthChoices() {
     List<DropdownMenuItem> choices = [];
+    // if the current year is loaded, go through the list of months available
     if (currentYear != null && dataRange.containsKey(currentYear)) {
       for (String month in dataRange[currentYear]) {
         choices.add(
@@ -54,6 +60,7 @@ class FilterWidgetState extends State<FilterWidget> {
   // creates the dropdown for the year
   List<DropdownMenuItem> getYearChoices() {
     List<DropdownMenuItem> choices = [];
+    // for each year in the map, create a drop down item
     dataRange.forEach((year, months) {
       choices.add(
         DropdownMenuItem(
@@ -76,8 +83,10 @@ class FilterWidgetState extends State<FilterWidget> {
               hint: const Text('Select a year'),
               items: getYearChoices(), 
               onChanged: (dynamic newValue) {
+                // on new value set the month to null
                 currentYear = newValue;
                 currentMonth = null;
+                // trigger the app to reload filters
                 widget.newFilterTrigger(currentYear, currentMonth);
                 setState(() {});
               }
@@ -88,6 +97,7 @@ class FilterWidgetState extends State<FilterWidget> {
               items: getMonthChoices(), 
               onChanged: (dynamic newValue) {
                 currentMonth = newValue;
+                // trigger the app to reload filters
                 widget.newFilterTrigger(currentYear, currentMonth);
                 setState(() {});
               }

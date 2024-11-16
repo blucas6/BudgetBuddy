@@ -7,39 +7,53 @@ import 'package:budgetbuddy/services/database_service.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 
 class Datadistributer {
+  // This object serves as a data pipeline from the database
+  // to the application widgets
+
+  List<TransactionObj> _allTransactions = [];   // holds all transactions available from the database
+  List<String> _allAccounts = [];               // holds a list of accounts available from the database
+  DatabaseService dbs = DatabaseService();      // connection to database
+
+  // load the pipeline on instantiation
   Datadistributer() {
     loadPipeline();
   }
 
+  // keeps track if the pipeline is ready or not
+  // _initCompleter will be false if not done grabbing data
   final Completer<void> _initCompleter = Completer<void>();
 
+  // method that will wait on the _initCompleter to be done
   Future<void> ensureInitialized() async {
     return _initCompleter.future;
   }
 
-  List<TransactionObj> _allTransactions = [];
-  List<String> _allAccounts = [];
-
+  // getter for the internal allTransactions object
+  // will wait for the pipeline to be done
   Future<List<TransactionObj>> get allTransactions async {
     await ensureInitialized();
     return _allTransactions;
   }
 
+  // getter for the internal allAccounts object
+  // will wait for the pipeline to be done
   Future<List<String>> get allAccounts async {
     await ensureInitialized();
     return _allAccounts;
   }
 
-  // connection to database
-  DatabaseService dbs = DatabaseService();
-
   // gathers all data for other widgets to use
   Future<void> loadPipeline() async {
+    // if pipeline has already been loaded previously
     if (_initCompleter.isCompleted) {
+      // reset it so that other objects will know the
+      // pipeline is not currently ready
       _initCompleter.future;
     }
+    // gather all necessary data
     _allTransactions = await dbs.getTransactions();
     _allAccounts = await loadAccountList();
+    // label pipeline as ready
     _initCompleter.complete();
     debugPrint("Done loading data pipeline!");
   }
@@ -47,6 +61,7 @@ class Datadistributer {
   // adds a transactions from a transaction file to the database
   Future<bool> addTransactionFileToDatabase(TransactionFile tfile) async {
     try {
+      // add the new account to the account table if it does not exist already
       if (!await dbs.checkIfAccountExists(tfile.account)) {
         dbs.addAccount(tfile.account);
       }
@@ -68,12 +83,22 @@ class Datadistributer {
     // TODO: Pass old and new transaction and let this function determine
     // the values that changed to update the database
     bool success =  await dbs.updateTransactionByID(id, column, value);
-    // reload all data when updating the database
-    await loadPipeline();
+    // no need to reload the entire pipeline just update the internal value
+    for (int t=0; t<_allTransactions.length; t++) {
+      // find matching transaction
+      if (_allTransactions[t].id == id) {
+        // get the properties as a map
+        Map<String,dynamic> props = _allTransactions[t].getProperties();
+        // change the value
+        props[column] = value;
+        // replace the index with the new object
+        _allTransactions[t] = TransactionObj.loadFromMap(props);
+      }
+    }
     return success;
   }
 
-  // gets all the accounts added as a list
+  // loads all the accounts as a list
   Future<List<String>> loadAccountList() async {
     List<Map<String,dynamic>> accounts = await dbs.getAllAccounts();
     List<String> accountlist = [];
@@ -102,6 +127,7 @@ class Datadistributer {
       };
   }
 
+  // fetches a data range for the user to filter transactions by
   // returns the structure:
   // { <year1> : [month1, month2, ...],
   //   <year2> : [month4, month5, ..] }

@@ -26,6 +26,7 @@ class TransactionFile {
     return readfilestatus && identifyaccountstatus && loadtransactionsstatus;
   }
 
+  // parses the config for the appropriate account type
   Future<bool> identifyAccount() async {
     // check config is loaded
     if (appconfig.accountInfo != null) {
@@ -44,6 +45,7 @@ class TransactionFile {
     return false;
   }
 
+  // reads the file and loads the csvData object
   Future<bool> readFile(File file) async {
     // Check the file extension to determine how to read the file
     if (file.path.endsWith('.csv')) {
@@ -81,6 +83,7 @@ class TransactionFile {
     }
   }
 
+  // loads the data object with transactions from the file
   bool loadTransactionObjs() {
     if (appconfig.accountInfo != null) {
       // start with a default map with all keys already created

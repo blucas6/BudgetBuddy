@@ -1,26 +1,34 @@
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:budgetbuddy/services/transaction.dart';
+import 'package:budgetbuddy/widgets/editmenuwidget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 class TransactionWidget extends StatefulWidget {
-  final Datadistributer datadistributer;
-  TransactionWidget({super.key, required this.datadistributer});
+  // This object displays the transaction data table
+
+  final Datadistributer datadistributer;  // access to pipeline
+
+  const TransactionWidget({super.key, required this.datadistributer});
+
   @override
   State<TransactionWidget> createState() => TransactionWidgetState();
 }
 
 class TransactionWidgetState extends State<TransactionWidget> {
-  
-  List<TransactionObj> allTransactions = [];   // list of transaction objects
+  List<TransactionObj> allTransactions = [];              // list of transaction objects
   List<TransactionObj> currentFilteredTransactions = [];  // sorts them based on existing filters
-  List<List<String>> currentTransactionStrings = [];  // list of transaction objects as strings for display
-  List<bool?> columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);   // fill null for however many columns we have
-  Map<int, TableColumnWidth> columnSizes = {};  // keep track of sizing for columns
-  List<List<bool>> rowHovers = [];
-  String? _selectedTag;
-  List<String> possibleTags = ['Hidden', 'Rent', 'Savings'];
+  List<List<String>> currentTransactionStrings = [];      // list of transaction objects as strings for display
+  String? activeYearFilter;
+  String? activeMonthFilter;
+  Map<int, TableColumnWidth> columnSizes = {};            // keep track of sizing for columns
+  List<List<bool>> rowHovers = [];                        // keep track of which rows are being hovered
+
+  // used to keep track of which columns are sorted
+  //fill null for however many columns we have
+  List<bool?> columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
+    
   // load transactions on startup
   @override
   void initState() {
@@ -28,10 +36,16 @@ class TransactionWidgetState extends State<TransactionWidget> {
     loadTransactions();
   }
 
+  // reload the data
   void loadTransactions() async {
     debugPrint("Reloading transaction widget");
+    // get the transactions from the datadistributer
     allTransactions = await widget.datadistributer.allTransactions;
     currentFilteredTransactions = allTransactions;
+    // apply filters if there are any
+    if (activeMonthFilter != null && activeYearFilter != null) {
+      applyFilters(activeYearFilter!, activeMonthFilter!);
+    }
     // turn data to strings to display
     currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
     setState(() {});
@@ -39,14 +53,20 @@ class TransactionWidgetState extends State<TransactionWidget> {
 
   // load the filtered transaction object with data
   void applyFilters(String year, String month) {
+    activeMonthFilter = month;
+    activeYearFilter = year;
+    debugPrint("Applying filter $year $month");
     currentFilteredTransactions = [];
     // go through the transaction object
     for (TransactionObj trans in allTransactions) {
       if (trans.year == year && trans.month == month) {
+        // add to the list if a transaction is within the range
         currentFilteredTransactions.add(trans);
       }
     }
+    // reload the current transaction strings for display
     currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
+    setState(() {});
   }
 
   // create a the headers for the data table
@@ -143,7 +163,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
                 onExit: (_) => onHover(rowc, colc, false),
                 child: GestureDetector(
                   onTap: () {
-                    showEditMenu(context, rowc); 
+                    showEditMenu(context, rowc);
                   },
                   child: AnimatedContainer(
                     duration: Duration(milliseconds: 200),
@@ -176,6 +196,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
       );
   }
 
+  // set the rowHovers object to dictate which rows are being hovered
   void onHover(int rc, int cc, bool isHover) {
     setState(() {
       for(int i=0; i<rowHovers[rc].length; i++) {
@@ -184,6 +205,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
     });
   }
 
+  // trigger a sorting of the transactions
   void sortMe(int cindex) {
     if (currentFilteredTransactions.isEmpty) {
       return;
@@ -223,6 +245,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
     });
   }
 
+  // convert a given transaction object to a list of strings 
+  // the data table will be created from this list of strings
   List<List<String>> transactionsToStrings(dynamic myTransactions) {
     // Pass either a List<Transaction> or a List<Map<String,dynamic>>
     List<List<String>> transactionStrings = [];
@@ -264,8 +288,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
     return transactionStrings;
   }
 
+  // returns an icon button that triggers the sort function
   IconButton getColumnIcon(int cindex) {
-    // returns an icon button that triggers the sort function
     Transform myIcon;
     if (columnSorts[cindex] == null) {
       // unsorted column
@@ -289,70 +313,36 @@ class TransactionWidgetState extends State<TransactionWidget> {
     return IconButton(onPressed: () {sortMe(cindex);}, icon: myIcon, padding: EdgeInsets.zero);
   }
 
-  void showEditMenu(BuildContext context, int index) {
-    showDialog(context: context, builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Add a tag"),
-        content: Container(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("Tag Transaction: "),
-              DropdownButton(
-                value: _selectedTag,
-                hint: Text('Select a tag'),
-                items: possibleTags.map((String tag) {
-                  return DropdownMenuItem(value: tag, child: Text(tag));
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                      if (newValue != null) {
-                        columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
-                        _selectedTag = newValue;
-                        int id = int.parse(currentTransactionStrings[index][0]);
-                        for (int i=0; i<currentFilteredTransactions.length; i++) {
-                          if (currentFilteredTransactions[i].id == id) {
-                            currentFilteredTransactions[i].tags.add(newValue);
-                            widget.datadistributer.updateData(id, 'Tags', currentFilteredTransactions[i].tags.join(";"));
-                          }
-                        }
-                        currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
-                        Navigator.of(context).pop();
-                      }
-                    }
-                  );
-                },
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
-                    int id = int.parse(currentTransactionStrings[index][0]);
-                    for (int i=0; i<currentFilteredTransactions.length; i++) {
-                      if (currentFilteredTransactions[i].id == id) {
-                        currentFilteredTransactions[i].tags = [];
-                        widget.datadistributer.updateData(id, 'Tags', '');
-                      }
-                    }
-                    currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
-                    Navigator.of(context).pop();
-                  });
-                },
-                icon: const Icon(Icons.delete_outline)
-              )
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Close'))
-          ],
-      );
+  void showEditMenu(BuildContext context, int index) async {
+    String? newTag = await showDialog<String?>(context: context, builder: (BuildContext context) {
+      return EditMenuWidget();
     });
+    // reset sort icons since the transactions will be reloaded unsorted
+    columnSorts = List.filled(TransactionObj().getProperties().keys.length, null);
+    // find the ID of the transaction clicked on
+    int id = int.parse(currentTransactionStrings[index][0]);
+    // go through all transactions to find the correct ID
+    for (int i=0; i<currentFilteredTransactions.length; i++) {
+      if (currentFilteredTransactions[i].id == id) {
+        List<String> currentTags = currentFilteredTransactions[i].tags;
+        if (newTag != null) {
+          if (newTag == '_delete_') {
+            currentTags = [];
+          } else {
+            currentTags.add(newTag);
+          }
+          // update the transaction through the pipeline
+          await widget.datadistributer.updateData(id, 'Tags', currentTags.join(';'));
+          // reload after user adds or removes a tag
+          // the pipeline should already have the data necessary
+          // with only the changed value updated
+          loadTransactions();
+        }
+      }
+    }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
