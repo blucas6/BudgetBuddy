@@ -1,22 +1,24 @@
 import 'dart:io';
-import 'package:budgetbuddy/config/appconfig.dart';
+import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/services/database_service.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:excel/excel.dart';
+import 'package:intl/intl.dart';
 
 class TransactionFile {
-  File file;  // the actual transaction file
-  String? headers;  // headers for the file (used in identifying the account type)
-  List<List<dynamic>> csvData = [];   // raw data from the csv
-  List<TransactionObj> data = [];   // transactionObjs loaded from the csv
-  String account = '';  // will be loaded with the account name
-  DatabaseService dbs = DatabaseService();
-  Appconfig appconfig = Appconfig();
+  File file;                                // the actual transaction file
+  String? headers;                          // headers for the file (used in identifying the account type)
+  List<List<dynamic>> csvData = [];         // raw data from the csv
+  List<TransactionObj> data = [];           // transactionObjs loaded from the csv
+  String account = '';                      // will be loaded with the account name
+  DatabaseService dbs = DatabaseService();  // connection to database instance
+  Appconfig appconfig = Appconfig();        // application config for parsing values
 
   TransactionFile(this.file);
 
+  // on load, locate the account name and load all data
   Future<bool> load() async {
     bool status = await readFile(file);
     status = await identifyAccount();
@@ -91,28 +93,50 @@ class TransactionFile {
           dynamic value = csvData[i][j];
           // check if config maps the given key to a transactionobj key
           if (appconfig.accountInfo![account]['format'].containsKey(key)) {
+            // load the format to check for additional parsing
+            Map<String,dynamic> keyFormat = appconfig.accountInfo![account]['format'][key];
+            // if a value requires addional parsing, check the 'parsing' key
+            if (keyFormat.containsKey('parsing')) {
+              // check the type of parsing
+              if (keyFormat['parsing'] == 'dateformat') {
+                // check the parsing format for the proper datetime parsing format
+                value = DateFormat(keyFormat['formatter']).parse(value);
+              } else if (keyFormat['parsing'] == 'spending' && keyFormat['formatter'] == 'inverse') {
+                value = -value.toDouble();
+              }
+            }
             // key is present therefore place the value of the csv into the transaction map
-            String transObjKey = appconfig.accountInfo![account]['format'][key];
-            transactionMap[transObjKey] = value;
+            transactionMap[keyFormat['column']] = value;
           } else {
-            debugPrint("Key does not exists -> $key");
+            // debugPrint("Key does not exists -> $key");
           }
         }
+        // add account type as a column
+        transactionMap['Account'] = account;
         // done going through columns, add transactionobj to list
         TransactionObj currentTrans = TransactionObj.loadFromMap(transactionMap);
         data.add(currentTrans);
-        debugPrint("New transaction obj:");
-        print(currentTrans.getProperties());
       }
       return true;
     }
     return false;
   }
 
-  void addTransactionToDatabase() {
-    // go through the list of transactionobjs and add the database
-    for (TransactionObj trans in data) {
-      dbs.addTransaction(trans);
+  Future<bool> addTransactionToDatabase() async {
+    // check to make sure the account exists first
+    try {
+      if (!await dbs.checkIfAccountExists(account)) {
+        dbs.addAccount(account);
+      }
+      // go through the list of transactionobjs and add the database
+      for (TransactionObj trans in data) {
+        dbs.addTransaction(trans);
+      }
+      return true;
     }
+    catch (e) {
+      debugPrint("Failed while adding transactions -> $e");
+    }
+    return false;
   }
 }

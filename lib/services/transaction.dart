@@ -4,7 +4,9 @@ class TransactionObj {
   late DateTime date;
   int? id, cardn;
   double? cost;
-  String? content, category;
+  String? content, category, account;
+  late List<String> tags;
+  String separator = ';';
 
   TransactionObj(
       {this.id,
@@ -12,8 +14,11 @@ class TransactionObj {
       this.cardn,
       this.content,
       this.category,
-      this.cost}) {
+      this.cost,
+      this.account,
+      var sometags}) {
     date = dates != null ? DateTime.parse(dates) : DateTime.parse('1980-01-01');
+    tags = sometags is String ? sometags.split(separator) : (sometags != null ? sometags : []);
   }
 
   // return a map of the object
@@ -24,7 +29,9 @@ class TransactionObj {
       'Card': cardn,
       'Description': content,
       'Category': category,
-      'Cost': cost
+      'Cost': cost,
+      'Account': account,
+      'Tags': tags
     };
   }
 
@@ -36,7 +43,9 @@ class TransactionObj {
       'Card': cardn,
       'Description': content,
       'Category': category,
-      'Cost': cost
+      'Cost': cost,
+      'Account': account,
+      'Tags': tags.join(separator)
     };
   }
 
@@ -47,7 +56,9 @@ class TransactionObj {
     cardn = map['Card'],
     content = map['Description'],
     category = map['Category'],
-    cost = map['Cost'] is int ? map['Cost'].toDouble() : map['Cost'];   // in case of integers
+    cost = map['Cost'] is int ? map['Cost'].toDouble() : map['Cost'],   // in case of integers
+    account = map['Account'],
+    tags = map['Tags'] is String ? map['Tags'].split(';') : map['Tags'];
 
   // provide a sample transaction
   TransactionObj.defaultTransaction() :
@@ -56,7 +67,9 @@ class TransactionObj {
     cardn = 999,
     content = 'Default Transaction',
     category = 'Default',
-    cost = -1;
+    cost = -1,
+    account = '',
+    tags = [];
 
   // provide a blank map to generate a transactionObj from
   Map<String, dynamic> getBlankMap() {
@@ -66,7 +79,37 @@ class TransactionObj {
       'Card': 0,
       'Description': '',
       'Category': '',
-      'Cost': 0
+      'Cost': 0,
+      'Account': '',
+      'Tags': List<String>.empty(growable: true)
+    };
+  }
+
+  // defines which cells are displayable in the transaction widget
+  Map<String, dynamic> getDisplayProperties() {
+    return {
+      'ID': false,
+      'Date': true,
+      'Card': true,
+      'Description': true,
+      'Category': true, 
+      'Cost': true,
+      'Account': false,
+      'Tags': true
+    };
+  }
+
+  // build SQL query according to properties
+  Map<String, dynamic> getSQLProperties() {
+    return {
+      'ID': 'INTEGER PRIMARY KEY',
+      'Date': 'DATE',
+      'Card': 'INTEGER',
+      'Description': 'TEXT',
+      'Category': 'TEXT', 
+      'Cost': 'DOUBLE',
+      'Account': 'TEXT',
+      'Tags': 'TEXT'
     };
   }
 }

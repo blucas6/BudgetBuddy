@@ -1,6 +1,10 @@
-import 'package:budgetbuddy/config/appconfig.dart';
+import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
+<<<<<<< HEAD
 import 'package:budgetbuddy/widgets/monthlybarchart.dart'; //  import
+=======
+import 'package:budgetbuddy/widgets/profileview.dart';
+>>>>>>> 6b5b39797f5c8675253b6a8ab859160bce2f758e
 import 'package:budgetbuddy/widgets/transactionswidget.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetbuddy/widgets/account_bar.dart';
@@ -59,6 +63,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  // get the key to the transaction widget state
+  final GlobalKey<TransactionWidgetState> _transactionWidgetStateKey = GlobalKey<TransactionWidgetState>();
+  final GlobalKey<ProfileViewState> _profileViewStateKey = GlobalKey<ProfileViewState>();
+
+  void handleUpdate() {
+    // trigger the widget to reload its state
+    _transactionWidgetStateKey.currentState?.loadTransactions();
+    _profileViewStateKey.currentState?.loadData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: const Column(
+      body: Column(
         children: [
           Flexible(
             fit: FlexFit.tight,
@@ -74,8 +89,13 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AccountBar(),
-                TransactionWidget(),
+                Column(
+                  children: [
+                    AccountBar(newDataTrigger: () => handleUpdate(),),
+                    ProfileView(key: _profileViewStateKey)
+                  ]
+                ),
+                TransactionWidget(key: _transactionWidgetStateKey,),
                 MonthlyPieChart(),
               ],
             ),
