@@ -11,11 +11,16 @@ import 'package:budgetbuddy/services/database_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:io';
 
-void main() {
+import 'package:window_manager/window_manager.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
   // Initialize databaseFactory for desktop platforms
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
+    windowManager.setMinimumSize(const Size(1200,860));
   }
 
   runApp(const MyApp());
@@ -103,16 +108,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 Column(
                   children: [
                     FilterWidget(newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
-                    TransactionWidget(key: _transactionWidgetStateKey, datadistributer: widget.datadistributer)
+                    TransactionWidget(key: _transactionWidgetStateKey, datadistributer: widget.datadistributer),
+                    MonthlyBarChart()
                   ]
                 ),
                 MonthlyPieChart(),
               ],
             ),
-          ),
-          Flexible(
-            fit: FlexFit.tight,
-            child: MonthlyBarChart(), // 新增 MonthlyBarChart 到畫面上
           ),
         ],
       ),

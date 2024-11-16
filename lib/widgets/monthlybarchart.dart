@@ -6,11 +6,9 @@ class MonthlyBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
+    return Container(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Header Section
               Padding(
@@ -21,49 +19,6 @@ class MonthlyBarChart extends StatelessWidget {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
-
-              // Pie Chart Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      width: 200, // Fixed width for placeholder
-                      height: 200, // Fixed height for placeholder
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlueAccent.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.pie_chart,
-                              size: 48,
-                              color: Colors.blueAccent,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Pie Chart Placeholder",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.blueAccent,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
               // Bar Chart Section
               Center(
                 child: Container(
@@ -174,12 +129,9 @@ class MonthlyBarChart extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 16),
             ],
           ),
-        ),
-      ),
-    );
+        );
   }
 }

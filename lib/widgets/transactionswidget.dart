@@ -9,6 +9,7 @@ class TransactionWidget extends StatefulWidget {
   // This object displays the transaction data table
 
   final Datadistributer datadistributer;  // access to pipeline
+  final double maxTransactionWidgetHeight = 400; // controls how long the widget is
 
   const TransactionWidget({super.key, required this.datadistributer});
 
@@ -342,8 +343,6 @@ class TransactionWidgetState extends State<TransactionWidget> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -354,7 +353,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
         Container(
           alignment: Alignment.topLeft,
           constraints: BoxConstraints(
-            maxHeight: 500
+            maxHeight: widget.maxTransactionWidgetHeight
           ),
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
