@@ -219,6 +219,10 @@ class TransactionWidgetState extends State<TransactionWidget> {
     }
     // find the column of interest as a key
     String ourkey = currentFilteredTransactions[0].getProperties().keys.toList()[cindex];
+    // do not sort if the column holds lists of values
+    if (sortedTransactionMap[0][ourkey] is List) {
+      return;
+    }
     // set all columns besides the one of interest to null
     for (int i=0; i<columnSorts.length; i++) {
       columnSorts[i] = cindex != i ? null : columnSorts[i];
@@ -275,7 +279,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
           } else {
             val = DateFormat('yyyy-MM-dd').format(value); // parse date
           }
-        } else if (value is List) {
+        } else if (value is List || value is List<String>) {
           val = value.join(" ");
         } else if (value == null) {
           val = ''; // don't display null params
@@ -345,8 +349,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(children: [
+    return Column(children: [
         Row(
           children: createDataTableHeaders(),
         ),
@@ -360,7 +363,6 @@ class TransactionWidgetState extends State<TransactionWidget> {
             child: createDataTable(context)
           ),
         )
-      ]),
-    );
+      ]);
   }
 }

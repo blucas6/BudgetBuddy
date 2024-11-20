@@ -20,7 +20,7 @@ void main() async {
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-    windowManager.setMinimumSize(const Size(1200,860));
+    windowManager.setMinimumSize(const Size(1400,900));
   }
 
   runApp(const MyApp());
@@ -69,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<TransactionWidgetState> _transactionWidgetStateKey = GlobalKey<TransactionWidgetState>();
   final GlobalKey<ProfileViewState> _profileViewStateKey = GlobalKey<ProfileViewState>();
   final GlobalKey<FilterWidgetState> _filterWidgetStateKey = GlobalKey<FilterWidgetState>();
+  final GlobalKey<MonthlyPieChartState> _monthlyPieChartKey = GlobalKey<MonthlyPieChartState>();
 
   void handleUpdate() {
     // trigger the widget to reload its state
@@ -81,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // trigger the widgets to reload their filters
     if (year != null && month != null) {
       _transactionWidgetStateKey.currentState?.applyFilters(year, month);
+      _monthlyPieChartKey.currentState?.loadSlices(year, month);
     }
   }
 
@@ -94,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           Flexible(
-            fit: FlexFit.tight,
+            fit: FlexFit.loose,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -109,10 +111,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     FilterWidget(key: _filterWidgetStateKey, newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
                     TransactionWidget(key: _transactionWidgetStateKey, datadistributer: widget.datadistributer),
+                    SizedBox(height: 5),
                     MonthlyBarChart()
                   ]
                 ),
-                MonthlyPieChart(),
+                MonthlyPieChart(key: _monthlyPieChartKey, datadistributer: widget.datadistributer)
               ],
             ),
           ),
