@@ -11,6 +11,7 @@ class MonthlyPieChart extends StatefulWidget {
   final double sliceSize = 80;
   final double radiusSize = 30;
   final int animationTime = 750;
+  final String unnamedCategory = 'Unnamed';
 
   const MonthlyPieChart({super.key, required this.datadistributer});
 
@@ -28,19 +29,21 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
     Colors.yellow, Colors.purple, Colors.red, Colors.teal
     ];
 
+  @override
+  void initState() {
+    loadSlices(null, null);
+    super.initState();
+  }
+
   void loadSlices(String? year, String? month) async {
     debugPrint("Reloading slices for pie chart");
     slicesMap = {};
     totalMonthlySpending = 0;
     // get all transactions available
     allTransactions = await widget.datadistributer.allTransactions;
-    if (year == null && month == null && allTransactions.isNotEmpty) {
-      year = allTransactions[0].year;
-      month = allTransactions[0].month;
-    }
     // go through transactions to set up the map
     for (TransactionObj trans in allTransactions) {
-      if (trans.year == year && trans.month == month) {
+      if ((year == null || trans.year == year) && (month == null || trans.month == month)) {
         // convert to 0 if no value
         trans.cost ??= 0;
         // skip transactions that are not spending
@@ -52,10 +55,10 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
           } else {
             slicesMap[trans.category!] = trans.cost;
           }
-        } else if (slicesMap.containsKey('other')) {
-          slicesMap['other'] += trans.cost;
+        } else if (slicesMap.containsKey(widget.unnamedCategory)) {
+          slicesMap[widget.unnamedCategory] += trans.cost;
         } else {
-          slicesMap['other'] = trans.cost;
+          slicesMap[widget.unnamedCategory] = trans.cost;
         }
         // add to total spending
         totalMonthlySpending += trans.cost!;
@@ -114,6 +117,7 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
     List<PieChartSectionData> mysections = getPieChartSections();
     return Container(
       height: 400,
+      width: 400,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

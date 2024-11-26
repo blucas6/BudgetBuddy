@@ -8,6 +8,7 @@ class YearlyBarChart extends StatefulWidget {
 
   final Datadistributer datadistributer;
   final double widthOfColumn = 600;
+  final int animationTime = 750;
 
   @override
   State<YearlyBarChart> createState() => YearlyBarChartState();
@@ -31,23 +32,28 @@ void initState() {
 }
 
 void loadData(String? year, String? month) async {
+  allBars = {};
   maxSpent = 0;
   currentMonth = month;
-  debugPrint("Reloading data for yearly bar chart");
+  debugPrint("Reloading data for yearly bar chart $year $month");
   allTransactions = await widget.datadistributer.allTransactions;
   if (year == null && month == null && allTransactions.isNotEmpty) {
     year = allTransactions[0].year;
     currentMonth = allTransactions[0].month;
   }
   for (TransactionObj trans in allTransactions) {
-    trans.cost ??= 0;
-    if (trans.cost! > 0) continue;
-    if (trans.year == year && allBars.containsKey(trans.month)) {
-      allBars[trans.month] += (-1*trans.cost!);
-    } else {
-      allBars[trans.month] = (-1*trans.cost!);
+    if (trans.year == year) {
+      trans.cost ??= 0;
+      // earned money not counted in spending
+      // TODO: exclude income tags but not other earned money
+      if (trans.cost! > 0) continue;
+      if (allBars.containsKey(trans.month)) {
+        allBars[trans.month] += (-1*trans.cost!);
+      } else {
+        allBars[trans.month] = (-1*trans.cost!);
+      }
+      maxSpent += (-1*trans.cost!);
     }
-    maxSpent += (-1*trans.cost!);
   }
   debugPrint("Bar Chart data:");
   print(allBars);
@@ -78,6 +84,8 @@ BarChart getBarChart() {
   });
 
   return BarChart(
+    swapAnimationDuration: Duration(milliseconds: widget.animationTime),
+    swapAnimationCurve: Curves.easeInOutQuint,
     BarChartData(
       maxY: maxSpent,
       minY: 0,
