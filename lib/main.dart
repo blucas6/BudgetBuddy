@@ -2,7 +2,7 @@ import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:budgetbuddy/widgets/filterwidget.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
-import 'package:budgetbuddy/widgets/monthlybarchart.dart';
+import 'package:budgetbuddy/widgets/yearlybarchart.dart';
 import 'package:budgetbuddy/widgets/profileview.dart';
 import 'package:budgetbuddy/widgets/transactionswidget.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,7 @@ void main() async {
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-    windowManager.setMinimumSize(const Size(1200,860));
+    windowManager.setMinimumSize(const Size(1500,900));
   }
 
   runApp(const MyApp());
@@ -69,18 +69,31 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<TransactionWidgetState> _transactionWidgetStateKey = GlobalKey<TransactionWidgetState>();
   final GlobalKey<ProfileViewState> _profileViewStateKey = GlobalKey<ProfileViewState>();
   final GlobalKey<FilterWidgetState> _filterWidgetStateKey = GlobalKey<FilterWidgetState>();
+  final GlobalKey<MonthlyPieChartState> _monthlyPieChartKey = GlobalKey<MonthlyPieChartState>();
+  final GlobalKey<YearlyBarChartState> _yearlyBarChartKey = GlobalKey<YearlyBarChartState>();
+
+  String? yearSave;
+  String? monthSave;
+
+  final double widthOfMiddleColumn = 800;
 
   void handleUpdate() {
     // trigger the widget to reload its state
     _transactionWidgetStateKey.currentState?.loadTransactions();
     _profileViewStateKey.currentState?.loadData();
     _filterWidgetStateKey.currentState?.loadData();
+    _yearlyBarChartKey.currentState?.loadData(yearSave, monthSave);
+    _monthlyPieChartKey.currentState?.loadSlices(yearSave, monthSave);
   }
 
   void handleFilter(String? year, String? month) {
     // trigger the widgets to reload their filters
     if (year != null && month != null) {
+      yearSave = year;
+      monthSave = month;
       _transactionWidgetStateKey.currentState?.applyFilters(year, month);
+      _monthlyPieChartKey.currentState?.loadSlices(year, month);
+      _yearlyBarChartKey.currentState?.loadData(year, month);
     }
   }
 
@@ -94,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           Flexible(
-            fit: FlexFit.tight,
+            fit: FlexFit.loose,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -107,12 +120,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 Column(
                   children: [
-                    FilterWidget(newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
+                    FilterWidget(key: _filterWidgetStateKey, newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
                     TransactionWidget(key: _transactionWidgetStateKey, datadistributer: widget.datadistributer),
-                    MonthlyBarChart()
+                    SizedBox(height: 5),
+                    YearlyBarChart(key: _yearlyBarChartKey, datadistributer: widget.datadistributer)
                   ]
                 ),
-                MonthlyPieChart(),
+                MonthlyPieChart(key: _monthlyPieChartKey, datadistributer: widget.datadistributer)
               ],
             ),
           ),

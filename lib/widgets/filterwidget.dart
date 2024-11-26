@@ -34,6 +34,7 @@ class FilterWidgetState extends State<FilterWidget> {
 
   // reloads the widgets data and rebuilds it
   void loadData() async {
+    debugPrint("Reloading filter widget");
     currentMonth = null;
     currentYear = null;
     dataRange = await widget.datadistributer.getTotalDateRange();
