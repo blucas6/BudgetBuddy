@@ -10,8 +10,8 @@ class TransactionWidget extends StatefulWidget {
 
   final Datadistributer datadistributer;  // access to pipeline
   final double maxTransactionWidgetHeight = 400; // controls how long the widget is
-
-  const TransactionWidget({super.key, required this.datadistributer});
+  final void Function() newDataTrigger;
+  const TransactionWidget({super.key, required this.datadistributer, required this.newDataTrigger});
 
   @override
   State<TransactionWidget> createState() => TransactionWidgetState();
@@ -341,7 +341,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
           // reload after user adds or removes a tag
           // the pipeline should already have the data necessary
           // with only the changed value updated
-          loadTransactions();
+          // reload all widgets
+          widget.newDataTrigger();
         }
       }
     }

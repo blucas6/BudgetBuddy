@@ -1,3 +1,4 @@
+import 'package:budgetbuddy/components/tags.dart';
 import 'package:flutter/material.dart';
 
 class EditMenuWidget extends StatefulWidget {
@@ -11,7 +12,12 @@ class EditMenuWidget extends StatefulWidget {
 
 class EditMenuWidgetState extends State<EditMenuWidget> {
   String? _selectedTag;   // keep track of which tag is being selected
-  List<String> possibleTags = ['Hidden', 'Rent', 'Savings'];  // possible tags
+  List<String> possibleTags = [
+    Tags().HIDDEN,
+    Tags().INCOME,
+    Tags().RENT,
+    Tags().SAVINGS
+  ];  // possible tags
 
   @override
   Widget build(BuildContext context) {

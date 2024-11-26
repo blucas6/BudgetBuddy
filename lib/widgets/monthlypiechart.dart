@@ -1,4 +1,5 @@
 import 'package:budgetbuddy/components/datadistributer.dart';
+import 'package:budgetbuddy/components/tags.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetbuddy/services/transaction.dart';
@@ -45,7 +46,14 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
     allTransactions = await widget.datadistributer.allTransactions;
     // go through transactions to set up the map
     for (TransactionObj trans in allTransactions) {
-      if ((year == null || trans.year == year) && (month == null || trans.month == month)) {
+      // only use transaction IF
+      //  the transaction matches the filtered year
+      //  the year filter is blank
+      //  the transaction matches the filtered month
+      //  the month filter blank
+      //  the transaction is not HIDDEN or INCOME
+      if ((year == null || trans.year == year) && (month == null || trans.month == month) &&
+          Tags().isTransactionSpending(trans)) {
         // convert to 0 if no value
         trans.cost ??= 0;
         // skip transactions that are not spending

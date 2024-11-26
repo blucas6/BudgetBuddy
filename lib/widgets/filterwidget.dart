@@ -29,14 +29,14 @@ class FilterWidgetState extends State<FilterWidget> {
   @override  
   void initState() {
     super.initState();
-    loadData();
+    loadData(null,null);
   }
 
   // reloads the widgets data and rebuilds it
-  void loadData() async {
+  void loadData(String? yearSave, String? monthSave) async {
     debugPrint("Reloading filter widget");
-    currentMonth = null;
-    currentYear = null;
+    currentMonth = monthSave;
+    currentYear = yearSave;
     dataRange = await widget.datadistributer.getTotalDateRange();
     setState(() {});
   }

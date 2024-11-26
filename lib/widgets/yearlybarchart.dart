@@ -1,4 +1,5 @@
 import 'package:budgetbuddy/components/datadistributer.dart';
+import 'package:budgetbuddy/components/tags.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -42,11 +43,10 @@ void loadData(String? year, String? month) async {
     currentMonth = allTransactions[0].month;
   }
   for (TransactionObj trans in allTransactions) {
-    if (trans.year == year) {
+    // INCOME/HIDDEN money not counted in spending
+    if (trans.year == year && Tags().isTransactionSpending(trans)) {
       trans.cost ??= 0;
-      // earned money not counted in spending
-      // TODO: exclude income tags but not other earned money
-      if (trans.cost! > 0) continue;
+      // refunds are counted as lowering total spending (does not need to be > 0)
       if (allBars.containsKey(trans.month)) {
         allBars[trans.month] += (-1*trans.cost!);
       } else {
@@ -57,6 +57,7 @@ void loadData(String? year, String? month) async {
   // find the largest bar and add a buffer
   allBars.forEach((key, value) {
     if (value > maxSpent) maxSpent = value;
+    if (value < 0) allBars[key] = 0.0;
   });
   maxSpent += (maxSpent*.03);
   debugPrint("Bar Chart data:");
