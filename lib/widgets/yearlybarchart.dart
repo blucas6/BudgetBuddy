@@ -52,9 +52,13 @@ void loadData(String? year, String? month) async {
       } else {
         allBars[trans.month] = (-1*trans.cost!);
       }
-      maxSpent += (-1*trans.cost!);
     }
   }
+  // find the largest bar and add a buffer
+  allBars.forEach((key, value) {
+    if (value > maxSpent) maxSpent = value;
+  });
+  maxSpent += (maxSpent*.03);
   debugPrint("Bar Chart data:");
   print(allBars);
   setState(() {});

@@ -56,7 +56,7 @@ class TransactionObj {
     cardn = map['Card'],
     content = map['Description'],
     category = map['Category'],
-    cost = map['Cost'] is int ? map['Cost'].toDouble() : map['Cost'],   // in case of integers
+    cost = map['Cost'] is double ? map['Cost'] : (map['Cost'] is int ? map['Cost'].toDouble() : (map['Cost'] is String ? double.parse(map['Cost']) : null)),   // in case of integers
     account = map['Account'],
     tags = map['Tags'] is String ? map['Tags'].split(';') : map['Tags'];
 

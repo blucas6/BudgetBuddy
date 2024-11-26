@@ -39,6 +39,7 @@ class TransactionFile {
           return true;
         }
       }
+      debugPrint("Unmatched account type!");
     } else {
       debugPrint('Config not loaded!');
     }
@@ -48,7 +49,7 @@ class TransactionFile {
   // reads the file and loads the csvData object
   Future<bool> readFile(File file) async {
     // Check the file extension to determine how to read the file
-    if (file.path.endsWith('.csv')) {
+    if (file.path.endsWith('.csv') || file.path.endsWith('.CSV')) {
       String csvDataStr = await file.readAsString();
       // get the data in a list
       csvData = const CsvToListConverter().convert(csvDataStr);
@@ -95,7 +96,7 @@ class TransactionFile {
           String key = csvData[0][j];
           dynamic value = csvData[i][j];
           // check if config maps the given key to a transactionobj key
-          if (appconfig.accountInfo![account]['format'].containsKey(key)) {
+          if (value != '' && appconfig.accountInfo![account]['format'].containsKey(key)) {
             // load the format to check for additional parsing
             Map<String,dynamic> keyFormat = appconfig.accountInfo![account]['format'][key];
             // if a value requires addional parsing, check the 'parsing' key
@@ -117,6 +118,7 @@ class TransactionFile {
         // add account type as a column
         transactionMap['Account'] = account;
         // done going through columns, add transactionobj to list
+        print(transactionMap);
         TransactionObj currentTrans = TransactionObj.loadFromMap(transactionMap);
         data.add(currentTrans);
       }

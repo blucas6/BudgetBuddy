@@ -9,6 +9,7 @@ class MonthlyPieChart extends StatefulWidget {
 
   final Datadistributer datadistributer;  // connection to pipeline
   final double sliceSize = 80;
+  final double sliceExpanded = 90;
   final double radiusSize = 30;
   final int animationTime = 750;
   final String unnamedCategory = 'Unnamed';
@@ -28,6 +29,7 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
     Colors.green, Colors.indigo, Colors.lime, Colors.deepPurple,
     Colors.yellow, Colors.purple, Colors.red, Colors.teal
     ];
+  int? touchedIndex;
 
   @override
   void initState() {
@@ -77,8 +79,8 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
         sections.add(PieChartSectionData(
           color: colorsList[sectionCounter],
           value: ((-1*cost)/(-1*totalMonthlySpending))*100,
-          radius: widget.sliceSize,
-          title: '\$${(-1*cost).toString()}',
+          radius: touchedIndex == sectionCounter ? widget.sliceExpanded : widget.sliceSize,
+          title: '\$${(-1*cost).toStringAsFixed(2)}',
           titleStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)
         ));
         sectionCounter++;
@@ -140,6 +142,17 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
                   swapAnimationDuration: Duration(milliseconds: widget.animationTime),
                   swapAnimationCurve: Curves.easeInOutQuint,
                   PieChartData(
+                    pieTouchData: PieTouchData(
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        setState(() {
+                          if (event.isInterestedForInteractions && pieTouchResponse != null) {
+                            touchedIndex = pieTouchResponse.touchedSection?.touchedSectionIndex;
+                          } else {
+                            touchedIndex = null;
+                          }
+                        });
+                      }
+                    ),
                     sections: mysections,
                     centerSpaceRadius: widget.radiusSize, // Center space size
                     sectionsSpace: 2, // Space between sections

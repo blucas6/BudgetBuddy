@@ -38,6 +38,11 @@
                 "column": "Cost",
                 "parsing": "spending",
                 "formatter": "inverse"
+            },
+            "Credit": {
+                "column": "Cost",
+                "parsing": "spending",
+                "formatter": "normal"
             }
         }
     }
