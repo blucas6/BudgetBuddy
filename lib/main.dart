@@ -2,7 +2,7 @@ import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:budgetbuddy/widgets/filterwidget.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
-import 'package:budgetbuddy/widgets/monthlybarchart.dart';
+import 'package:budgetbuddy/widgets/yearlybarchart.dart';
 import 'package:budgetbuddy/widgets/profileview.dart';
 import 'package:budgetbuddy/widgets/transactionswidget.dart';
 import 'package:flutter/material.dart';
