@@ -70,19 +70,30 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ProfileViewState> _profileViewStateKey = GlobalKey<ProfileViewState>();
   final GlobalKey<FilterWidgetState> _filterWidgetStateKey = GlobalKey<FilterWidgetState>();
   final GlobalKey<MonthlyPieChartState> _monthlyPieChartKey = GlobalKey<MonthlyPieChartState>();
+  final GlobalKey<YearlyBarChartState> _yearlyBarChartKey = GlobalKey<YearlyBarChartState>();
+
+  String? yearSave;
+  String? monthSave;
+
+  final double widthOfMiddleColumn = 800;
 
   void handleUpdate() {
     // trigger the widget to reload its state
     _transactionWidgetStateKey.currentState?.loadTransactions();
     _profileViewStateKey.currentState?.loadData();
     _filterWidgetStateKey.currentState?.loadData();
+    _yearlyBarChartKey.currentState?.loadData(yearSave, monthSave);
+    _monthlyPieChartKey.currentState?.loadSlices(yearSave, monthSave);
   }
 
   void handleFilter(String? year, String? month) {
     // trigger the widgets to reload their filters
     if (year != null && month != null) {
+      yearSave = year;
+      monthSave = month;
       _transactionWidgetStateKey.currentState?.applyFilters(year, month);
       _monthlyPieChartKey.currentState?.loadSlices(year, month);
+      _yearlyBarChartKey.currentState?.loadData(year, month);
     }
   }
 
@@ -112,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     FilterWidget(key: _filterWidgetStateKey, newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
                     TransactionWidget(key: _transactionWidgetStateKey, datadistributer: widget.datadistributer),
                     SizedBox(height: 5),
-                    MonthlyBarChart()
+                    YearlyBarChart(key: _yearlyBarChartKey, datadistributer: widget.datadistributer)
                   ]
                 ),
                 MonthlyPieChart(key: _monthlyPieChartKey, datadistributer: widget.datadistributer)

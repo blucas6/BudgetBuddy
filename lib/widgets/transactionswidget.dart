@@ -349,15 +349,17 @@ class TransactionWidgetState extends State<TransactionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
+    return Column(
+      children: [
         Row(
           children: createDataTableHeaders(),
         ),
         Container(
-          alignment: Alignment.topLeft,
           constraints: BoxConstraints(
-            maxHeight: widget.maxTransactionWidgetHeight
-          ),
+            minWidth: 500,
+            minHeight: 200,
+            maxHeight: widget.maxTransactionWidgetHeight),
+          alignment: Alignment.topLeft,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: createDataTable(context)

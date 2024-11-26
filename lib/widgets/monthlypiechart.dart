@@ -28,12 +28,16 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
     Colors.yellow, Colors.purple, Colors.red, Colors.teal
     ];
 
-  void loadSlices(String year, String month) async {
+  void loadSlices(String? year, String? month) async {
     debugPrint("Reloading slices for pie chart");
     slicesMap = {};
     totalMonthlySpending = 0;
     // get all transactions available
     allTransactions = await widget.datadistributer.allTransactions;
+    if (year == null && month == null && allTransactions.isNotEmpty) {
+      year = allTransactions[0].year;
+      month = allTransactions[0].month;
+    }
     // go through transactions to set up the map
     for (TransactionObj trans in allTransactions) {
       if (trans.year == year && trans.month == month) {
@@ -41,7 +45,7 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
         trans.cost ??= 0;
         // skip transactions that are not spending
         if (trans.cost! > 0) continue;
-        // check if category is present in mlap
+        // check if category is present in map
         if (trans.category != null && trans.category != '') {
           if (slicesMap.containsKey(trans.category)) {
             slicesMap[trans.category!] += trans.cost;
