@@ -86,43 +86,47 @@ class TransactionFile {
 
   // loads the data object with transactions from the file
   bool loadTransactionObjs() {
-    if (appconfig.accountInfo != null) {
-      // start with a default map with all keys already created
-      Map<String, dynamic> transactionMap = TransactionObj().getBlankMap();
-      // loop through starting at the first row of data
-      for (var i=1; i<csvData.length; i++) {
-        // loop through each column in that row
-        for (var j=0; j<csvData[0].length; j++) {
-          String key = csvData[0][j];
-          dynamic value = csvData[i][j];
-          // check if config maps the given key to a transactionobj key
-          if (value != '' && appconfig.accountInfo![account]['format'].containsKey(key)) {
-            // load the format to check for additional parsing
-            Map<String,dynamic> keyFormat = appconfig.accountInfo![account]['format'][key];
-            // if a value requires addional parsing, check the 'parsing' key
-            if (keyFormat.containsKey('parsing')) {
-              // check the type of parsing
-              if (keyFormat['parsing'] == 'dateformat') {
-                // check the parsing format for the proper datetime parsing format
-                value = DateFormat(keyFormat['formatter']).parse(value);
-              } else if (keyFormat['parsing'] == 'spending' && keyFormat['formatter'] == 'inverse') {
-                value = -value.toDouble();
+    try {
+      if (appconfig.accountInfo != null) {
+        // start with a default map with all keys already created
+        Map<String, dynamic> transactionMap = TransactionObj().getBlankMap();
+        // loop through starting at the first row of data
+        for (var i=1; i<csvData.length; i++) {
+          // loop through each column in that row
+          for (var j=0; j<csvData[0].length; j++) {
+            String key = csvData[0][j];
+            dynamic value = csvData[i][j];
+            // check if config maps the given key to a transactionobj key
+            if (value != '' && appconfig.accountInfo![account]['format'].containsKey(key)) {
+              // load the format to check for additional parsing
+              Map<String,dynamic> keyFormat = appconfig.accountInfo![account]['format'][key];
+              // if a value requires addional parsing, check the 'parsing' key
+              if (keyFormat.containsKey('parsing')) {
+                // check the type of parsing
+                if (keyFormat['parsing'] == 'dateformat') {
+                  // check the parsing format for the proper datetime parsing format
+                  value = DateFormat(keyFormat['formatter']).parse(value);
+                } else if (keyFormat['parsing'] == 'spending' && keyFormat['formatter'] == 'inverse') {
+                  value = -value.toDouble();
+                }
               }
+              // key is present therefore place the value of the csv into the transaction map
+              transactionMap[keyFormat['column']] = value;
+            } else {
+              // debugPrint("Key does not exists -> $key");
             }
-            // key is present therefore place the value of the csv into the transaction map
-            transactionMap[keyFormat['column']] = value;
-          } else {
-            // debugPrint("Key does not exists -> $key");
           }
+          // add account type as a column
+          transactionMap['Account'] = account;
+          // done going through columns, add transactionobj to list
+          print(transactionMap);
+          TransactionObj currentTrans = TransactionObj.loadFromMap(transactionMap);
+          data.add(currentTrans);
         }
-        // add account type as a column
-        transactionMap['Account'] = account;
-        // done going through columns, add transactionobj to list
-        print(transactionMap);
-        TransactionObj currentTrans = TransactionObj.loadFromMap(transactionMap);
-        data.add(currentTrans);
+        return true;
       }
-      return true;
+    } catch (e) {
+      debugPrint("Error in loading transactions into objects -> $e");
     }
     return false;
   }

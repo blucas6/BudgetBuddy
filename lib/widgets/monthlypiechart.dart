@@ -9,8 +9,8 @@ class MonthlyPieChart extends StatefulWidget {
   // this object displays the users transactions by month
 
   final Datadistributer datadistributer;  // connection to pipeline
-  final double sliceSize = 80;
-  final double sliceExpanded = 90;
+  final double sliceSize = 100;
+  final double sliceExpanded = 110;
   final double radiusSize = 30;
   final int animationTime = 750;
   final String unnamedCategory = 'Unnamed';
@@ -22,13 +22,15 @@ class MonthlyPieChart extends StatefulWidget {
 }
 
 class MonthlyPieChartState extends State<MonthlyPieChart> {
+  bool pieChartLoaded = false;
   List<TransactionObj> allTransactions = [];  // list of transaction objects  
   double totalMonthlySpending = 0;
   Map<String, dynamic> slicesMap = {};
   List<MaterialColor> colorsList = [
     Colors.blue, Colors.amber, Colors.cyan, Colors.deepOrange,
     Colors.green, Colors.indigo, Colors.lime, Colors.deepPurple,
-    Colors.yellow, Colors.purple, Colors.red, Colors.teal
+    Colors.yellow, Colors.purple, Colors.red, Colors.teal, Colors.pink, 
+    Colors.lightGreen
     ];
   int? touchedIndex;
 
@@ -54,10 +56,8 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
       //  the transaction is not HIDDEN or INCOME
       if ((year == null || trans.year == year) && (month == null || trans.month == month) &&
           Tags().isTransactionSpending(trans)) {
-        // convert to 0 if no value
-        trans.cost ??= 0;
         // skip transactions that are not spending
-        if (trans.cost! > 0) continue;
+        if (trans.cost > 0) continue;
         // check if category is present in map
         if (trans.category != null && trans.category != '') {
           if (slicesMap.containsKey(trans.category)) {
@@ -71,9 +71,11 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
           slicesMap[widget.unnamedCategory] = trans.cost;
         }
         // add to total spending
-        totalMonthlySpending += trans.cost!;
+        totalMonthlySpending += trans.cost;
       }
     }
+    // if there are slices, the piechart is loaded
+    if (slicesMap.isNotEmpty) pieChartLoaded = true;
     print(totalMonthlySpending);
     print(slicesMap);
     setState(() {});
@@ -89,10 +91,20 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
           value: ((-1*cost)/(-1*totalMonthlySpending))*100,
           radius: touchedIndex == sectionCounter ? widget.sliceExpanded : widget.sliceSize,
           title: '\$${(-1*cost).toStringAsFixed(2)}',
-          titleStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)
+          titleStyle: touchedIndex == sectionCounter ? 
+          TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)
+           : TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)
         ));
         sectionCounter++;
       }); 
+    } else {
+      sections.add(PieChartSectionData(
+        color: Colors.grey,
+        value: 100,
+        radius: widget.sliceSize,
+        title: 'No Data',
+        titleStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)
+      ));
     }
     return sections;
   }
@@ -140,8 +152,9 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
               color: Colors.teal,
             ),
           ),
-          SizedBox(height: 30),
+          SizedBox(height: 50),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
                 width: 200,
@@ -152,20 +165,20 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
                   PieChartData(
                     pieTouchData: PieTouchData(
                       touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                        setState(() {
-                          if (event.isInterestedForInteractions && pieTouchResponse != null) {
-                            touchedIndex = pieTouchResponse.touchedSection?.touchedSectionIndex;
-                          } else {
-                            touchedIndex = null;
-                          }
-                        });
+                        int? beforeState = touchedIndex;
+                        if (event.isInterestedForInteractions && pieTouchResponse != null) {
+                          touchedIndex = pieTouchResponse.touchedSection?.touchedSectionIndex;
+                        } else {
+                          touchedIndex = null;
+                        }
+                        if (beforeState != touchedIndex) setState(() {});
                       }
                     ),
                     sections: mysections,
                     centerSpaceRadius: widget.radiusSize, // Center space size
                     sectionsSpace: 2, // Space between sections
                   ),
-                ),
+                )
               ),
               SizedBox(width: 50),
               Column(

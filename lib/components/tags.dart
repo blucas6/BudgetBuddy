@@ -24,4 +24,22 @@ class Tags {
     }
     return true;
   }
+
+  bool isIncome(TransactionObj trans) {
+    // check for income tag
+    if (trans.tags.contains(INCOME)) return true;
+    return false;
+  }
+
+  bool isSavings(TransactionObj trans) {
+    // check for savings tag
+    if (trans.tags.contains(SAVINGS)) return true;
+    return false;
+  }
+
+  bool isValid(TransactionObj trans) {
+    // check for hidden tag
+    if (trans.tags.contains(HIDDEN)) return true;
+    return false;
+  }
 }

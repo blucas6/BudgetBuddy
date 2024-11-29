@@ -20,7 +20,7 @@ void main() async {
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-    windowManager.setMinimumSize(const Size(1500,900));
+    // windowManager.setMinimumSize(const Size(1500,900));
   }
 
   runApp(const MyApp());
@@ -106,8 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          Flexible(
-            fit: FlexFit.loose,
+          Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -119,13 +118,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   ]
                 ),
                 Column(
-                  children: [
-                    FilterWidget(key: _filterWidgetStateKey, newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
-                    TransactionWidget(key: _transactionWidgetStateKey, newDataTrigger: () => handleUpdate(), datadistributer: widget.datadistributer),
-                    SizedBox(height: 5),
-                    YearlyBarChart(key: _yearlyBarChartKey, datadistributer: widget.datadistributer)
-                  ]
-                ),
+                    children: [
+                      FilterWidget(key: _filterWidgetStateKey, newFilterTrigger: (year, month) => handleFilter(year, month), datadistributer: widget.datadistributer),
+                      TransactionWidget(key: _transactionWidgetStateKey, newDataTrigger: () => handleUpdate(), datadistributer: widget.datadistributer),
+                      SizedBox(height: 5),
+                      YearlyBarChart(key: _yearlyBarChartKey, datadistributer: widget.datadistributer)
+                    ]
+                  ),
                 MonthlyPieChart(key: _monthlyPieChartKey, datadistributer: widget.datadistributer)
               ],
             ),

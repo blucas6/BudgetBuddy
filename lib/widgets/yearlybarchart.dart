@@ -45,12 +45,11 @@ void loadData(String? year, String? month) async {
   for (TransactionObj trans in allTransactions) {
     // INCOME/HIDDEN money not counted in spending
     if (trans.year == year && Tags().isTransactionSpending(trans)) {
-      trans.cost ??= 0;
       // refunds are counted as lowering total spending (does not need to be > 0)
       if (allBars.containsKey(trans.month)) {
-        allBars[trans.month] += (-1*trans.cost!);
+        allBars[trans.month] += (-1*trans.cost);
       } else {
-        allBars[trans.month] = (-1*trans.cost!);
+        allBars[trans.month] = (-1*trans.cost);
       }
     }
   }

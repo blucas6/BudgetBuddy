@@ -20,6 +20,7 @@ class ProfileViewState extends State<ProfileView> {
     "totalspending": 0,
     "totalincome": 0,
     "totalassets": 0,
+    "totalsavings": 0
   };
 
   @override
@@ -35,28 +36,43 @@ class ProfileViewState extends State<ProfileView> {
     setState(() {});
   }
 
+  Text getDisplayText(String label, double value) {
+    String neg = '';
+    String valuetext = '';
+    if (value < 0) {
+      neg = '-';
+      value = value*-1;
+    }
+    valuetext = value.toStringAsFixed(2);
+    return Text('$label: \t$neg\$$valuetext',
+    style: TextStyle(fontSize: 16),);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.lightBlueAccent,
-          width: 3
-        )
+        color: Colors.blueAccent.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12)
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('My Profile Summary',
-            style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.teal,
-          ),),
-          Text('Total Spending: ${profile['totalspending']!.toStringAsFixed(2)}'),
-          Text('Total Income: ${profile['totalincome']!.toStringAsFixed(2)}'),
-          Text('Net Worth: ${profile['totalassets']!.toStringAsFixed(2)}'),
-        ]
+      child: Padding(
+        padding: EdgeInsets.only(top:10, bottom: 20, right: 20, left: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('My Profile Summary',
+              style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal,
+            ),),
+            SizedBox(height: 10),
+            getDisplayText('Total Spending', profile['totalspending']!),
+            getDisplayText('Total Income', profile['totalincome']!),
+            getDisplayText('Total Savings', profile['totalsavings']!),
+            getDisplayText('Net Worth', profile['totalassets']!),
+          ]
+        ),
       ),
     );
   }

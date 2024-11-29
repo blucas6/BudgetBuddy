@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:budgetbuddy/components/tags.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:budgetbuddy/components/transactionfile.dart';
@@ -110,22 +111,27 @@ class Datadistributer {
     return accountlist;
   }
 
-  // get the total spending over a period
+  // Sort the data from all spending across all accounts into
+  // a profile
   Future<Map<String,double>> loadProfile() async {
     await ensureInitialized();
     double totalspending = 0;
     double totalincome = 0;
+    double totalsavings = 0;
     for (TransactionObj row in _allTransactions) {
-      if (row.cost! < 0) {
-        totalspending += row.cost!;
-      } else {
-        totalincome += row.cost!;
+      if (Tags().isIncome(row)) {
+        totalincome += row.cost;
+      } else if (Tags().isSavings(row)) {
+        totalsavings += row.cost;
+      } else if (Tags().isValid(row)) {
+        totalspending += row.cost;
       }
     }
     return {
       'totalspending': totalspending,
       'totalincome': totalincome,
-      'totalassets': totalincome + totalspending
+      'totalsavings': totalsavings,
+      'totalassets': totalsavings + totalincome - totalspending,
       };
   }
 
