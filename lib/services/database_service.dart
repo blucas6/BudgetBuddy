@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 
 class DatabaseService {
-  // currently loads the database at: C:\Users\<user>\AppData\Roaming\com.example\budgetbuddy (windows)
   static Database? _db;
   static final DatabaseService _instance = DatabaseService._constructor();
   factory DatabaseService() => _instance;
@@ -18,17 +17,14 @@ class DatabaseService {
   }
 
   void loadDatabase() async {
-    // get user area
     final databaseDirPath = await getApplicationSupportDirectory();
     final databasePath = join(databaseDirPath.path, "master_db.db");
 
-    // create query string from a template object
     String query = '';
     String type = 'TEXT';
     String restriction = 'NOT NULL';
     int index = 0;
     TransactionObj.defaultTransaction().getProperties().forEach((name, value) {
-      // dynamic typing of values
       if (value is int?) {
         type = 'INTEGER';
       } else if (value is DateTime) {
@@ -38,7 +34,7 @@ class DatabaseService {
       } else {
         type = 'TEXT';
       }
-      // set primary key to first column
+
       if (index == 0) {
         restriction = 'PRIMARY KEY AUTOINCREMENT';
       } else {
@@ -46,21 +42,21 @@ class DatabaseService {
       }
       query += '$name $type $restriction';
       index++;
-      // add divider except for the last value
       if (index != TransactionObj().getProperties().keys.length) {
         query += ', ';
       }
     });
     debugPrint("Running query: $query");
-    // Open or create the database at the custom location
+
     try {
       _db = await openDatabase(
-            databasePath,
-            version: 1,
-            onCreate: (db, version) async {
-              await db.execute("CREATE TABLE IF NOT EXISTS $transactionTableName ($query)");
-            },
-          );
+        databasePath,
+        version: 1,
+        onCreate: (db, version) async {
+          await db.execute(
+              "CREATE TABLE IF NOT EXISTS $transactionTableName ($query)");
+        },
+      );
     } catch (e) {
       debugPrint("Failed to connect to database! -> $e");
     }
@@ -69,7 +65,6 @@ class DatabaseService {
 
   Future<bool> addTransaction(TransactionObj trans) async {
     try {
-      // give the added transaction an id and increment
       await _db!.insert(transactionTableName, trans.getPropertiesNoID());
       debugPrint("Transaction added: ");
       print(trans.getProperties());
@@ -83,8 +78,6 @@ class DatabaseService {
   Future<List<TransactionObj>> getTransactions() async {
     try {
       final data = await _db!.query(transactionTableName);
-      // make use of transactionobj interface
-      // create objects to return from database
       return data.map((entry) => TransactionObj.loadFromMap(entry)).toList();
     } catch (e) {
       debugPrint('Read transactions failed: $e');
@@ -92,14 +85,12 @@ class DatabaseService {
     }
   }
 
-  Future<bool> updateTransactionByID(int id, String column, dynamic value) async {
-    // pass an id to update a transaction at a given column with a certain value
+  Future<bool> updateTransactionByID(
+      int id, String column, dynamic value) async {
     try {
       int count = await _db!.update(
         transactionTableName,
-        {
-          column: value,
-        },
+        {column: value},
         where: 'ID = ?',
         whereArgs: [id],
       );
@@ -111,7 +102,6 @@ class DatabaseService {
   }
 
   Future<bool> deleteTransaction(int id) async {
-    // pass an id and delete the column at that id
     try {
       int count = await _db!.delete(
         transactionTableName,
@@ -125,9 +115,24 @@ class DatabaseService {
     }
   }
 
-  // Verification Method
+  // Delete all transactions by account
+  Future<bool> deleteTransactionsByAccount(String account) async {
+    try {
+      int count = await _db!.delete(
+        transactionTableName,
+        where: 'account = ?',
+        whereArgs: [account],
+      );
+      return count > 0;
+    } catch (e) {
+      debugPrint('Delete transactions by account failed: $e');
+      return false;
+    }
+  }
+
   Future<void> printAllTransactions() async {
-    final List<Map<String, dynamic>> results = await _db!.query(transactionTableName);
+    final List<Map<String, dynamic>> results =
+        await _db!.query(transactionTableName);
 
     if (results.isNotEmpty) {
       debugPrint('--- Transactions in Database ---');
