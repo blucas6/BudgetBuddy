@@ -1,4 +1,3 @@
-//file parsng
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -13,6 +12,24 @@ void main() {
     test('Handle missing file', () async {
       expect(() async => await parseCSV('missing.csv'),
           throwsA(isA<FileNotFoundError>()));
+    });
+
+    test('Handle invalid CSV format', () async {
+      expect(() async => await parseCSV('invalid_format.csv'),
+          throwsA(isA<InvalidCSVFormatError>()));
+    });
+
+    test('Parse empty CSV file', () async {
+      final data = await parseCSV('empty.csv');
+
+      expect(data.isEmpty, true);
+    });
+
+    test('Parse large CSV file', () async {
+      final data = await parseCSV('large_data.csv');
+
+      expect(
+          data.length, greaterThan(1000)); // Example check for number of rows
     });
   });
 }

@@ -3,6 +3,8 @@ import 'package:budgetbuddy/main.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  debugPrint = (String? message, {int? wrapWidth}) => print(message ?? '');
+
   testWidgets('Add account button displays account',
       (WidgetTester tester) async {
     // Build the widget tree from the main app.

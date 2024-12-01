@@ -5,7 +5,8 @@ import 'package:budgetbuddy/main.dart'; // Ensure this path is correct
 void main() {
   testWidgets('Budget Buddy app loads correctly', (WidgetTester tester) async {
     // Build the app and trigger a frame.
-    await tester.pumpWidget(MyApp()); // Replace MyApp with the name of your main widget if different
+    await tester.pumpWidget(
+        MyApp()); // Replace MyApp with the name of your main widget if different
 
     // Verify if the main widget of the app loads properly.
     expect(find.byType(MyApp), findsOneWidget);

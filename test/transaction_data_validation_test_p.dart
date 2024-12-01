@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:budgetbuddy/services/transaction.dart';
-//import 'package:budgetbuddy/transaction.dart';
+//import 'package:budgetbuddy/services/transaction.dart';
 
 class TransactionObj {
   final double amount;
@@ -29,6 +28,7 @@ void main() {
       expect(transaction.amount, 50.0);
       expect(transaction.description, 'Groceries');
       expect(transaction.date, DateTime(2024, 11, 1));
+      print('Valid transaction amount test successful');
     });
 
     test('Invalid transaction amount', () {
@@ -40,6 +40,7 @@ void main() {
         ),
         throwsA(isA<AssertionError>()),
       );
+      print('Invalid transaction amount test successful');
     });
   });
 }
