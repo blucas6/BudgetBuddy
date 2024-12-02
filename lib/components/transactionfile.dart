@@ -8,13 +8,14 @@ import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 
 class TransactionFile {
-  File file;                                // the actual transaction file
-  String? headers;                          // headers for the file (used in identifying the account type)
-  List<List<dynamic>> csvData = [];         // raw data from the csv
-  List<TransactionObj> data = [];           // transactionObjs loaded from the csv
-  String account = '';                      // will be loaded with the account name
-  DatabaseService dbs = DatabaseService();  // connection to database instance
-  Appconfig appconfig = Appconfig();        // application config for parsing values
+  File file; // the actual transaction file
+  String?
+      headers; // headers for the file (used in identifying the account type)
+  List<List<dynamic>> csvData = []; // raw data from the csv
+  List<TransactionObj> data = []; // transactionObjs loaded from the csv
+  String account = ''; // will be loaded with the account name
+  DatabaseService dbs = DatabaseService(); // connection to database instance
+  Appconfig appconfig = Appconfig(); // application config for parsing values
 
   TransactionFile(this.file);
 
@@ -64,11 +65,9 @@ class TransactionFile {
       var firstTable = excel.tables[excel.tables.keys.first];
       if (firstTable != null) {
         csvData = firstTable.rows;
-        headers = firstTable.rows[0].map((cell) => 
-                cell?.value != null
-                ? cell?.value.toString()
-                : ''
-              ).join(',');
+        headers = firstTable.rows[0]
+            .map((cell) => cell?.value != null ? cell?.value.toString() : '')
+            .join(',');
         debugPrint("Excel Headers: $headers");
         // Debugging each row
         for (var row in firstTable.rows) {
@@ -90,22 +89,25 @@ class TransactionFile {
       // start with a default map with all keys already created
       Map<String, dynamic> transactionMap = TransactionObj().getBlankMap();
       // loop through starting at the first row of data
-      for (var i=1; i<csvData.length; i++) {
+      for (var i = 1; i < csvData.length; i++) {
         // loop through each column in that row
-        for (var j=0; j<csvData[0].length; j++) {
+        for (var j = 0; j < csvData[0].length; j++) {
           String key = csvData[0][j];
           dynamic value = csvData[i][j];
           // check if config maps the given key to a transactionobj key
-          if (value != '' && appconfig.accountInfo![account]['format'].containsKey(key)) {
+          if (value != '' &&
+              appconfig.accountInfo![account]['format'].containsKey(key)) {
             // load the format to check for additional parsing
-            Map<String,dynamic> keyFormat = appconfig.accountInfo![account]['format'][key];
+            Map<String, dynamic> keyFormat =
+                appconfig.accountInfo![account]['format'][key];
             // if a value requires addional parsing, check the 'parsing' key
             if (keyFormat.containsKey('parsing')) {
               // check the type of parsing
               if (keyFormat['parsing'] == 'dateformat') {
                 // check the parsing format for the proper datetime parsing format
                 value = DateFormat(keyFormat['formatter']).parse(value);
-              } else if (keyFormat['parsing'] == 'spending' && keyFormat['formatter'] == 'inverse') {
+              } else if (keyFormat['parsing'] == 'spending' &&
+                  keyFormat['formatter'] == 'inverse') {
                 value = -value.toDouble();
               }
             }
@@ -119,7 +121,8 @@ class TransactionFile {
         transactionMap['Account'] = account;
         // done going through columns, add transactionobj to list
         print(transactionMap);
-        TransactionObj currentTrans = TransactionObj.loadFromMap(transactionMap);
+        TransactionObj currentTrans =
+            TransactionObj.loadFromMap(transactionMap);
         data.add(currentTrans);
       }
       return true;
