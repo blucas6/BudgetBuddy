@@ -17,11 +17,17 @@ class YearlyBarChart extends StatefulWidget {
 
 class YearlyBarChartState extends State<YearlyBarChart> {
 
-List<TransactionObj> allTransactions = [];
+List<TransactionObj> allTransactions = [];    // all transactions from the data distributer
+// dictionary to generate barchart from
+// { <month> : {'rent': x, 'spending': y}, ... }
 Map<String,dynamic> allBars = {};
 String? currentMonth;
-MaterialColor currentMonthColor = Colors.amber;
-MaterialColor monthColor = Colors.blue;
+Color currentMonthColor = const Color.fromARGB(255, 255, 193, 7);
+Color currentMonthColorRent = const Color.fromARGB(255, 255, 202, 43);
+Color currentMonthColorIncome = const Color.fromARGB(255, 194, 147, 8);
+Color monthColor = const Color.fromARGB(255, 36, 152, 247);
+Color monthColorRent = const Color.fromARGB(255, 103, 189, 250);
+Color monthColorIncome = const Color.fromARGB(255, 14, 94, 151);
 double barWidth = 25;
 double barRadius = 4;
 double maxSpent = 0;
@@ -43,24 +49,43 @@ void loadData(String? year, String? month) async {
     currentMonth = allTransactions[0].month;
   }
   for (TransactionObj trans in allTransactions) {
-    // INCOME/HIDDEN money not counted in spending
-    if (trans.year == year && Tags().isTransactionSpending(trans)) {
+    // HIDDEN money not counted in spending
+    if (trans.year == year && Tags().isValid(trans) && !Tags().isSavings(trans)) {
       // refunds are counted as lowering total spending (does not need to be > 0)
       if (allBars.containsKey(trans.month)) {
-        allBars[trans.month] += (-1*trans.cost);
+        if (Tags().isRent(trans)) {
+          allBars[trans.month]['rent'] += trans.cost*-1;
+        } else if (Tags().isIncome(trans)) { 
+          allBars[trans.month]['income'] += trans.cost;
+        } else {
+          allBars[trans.month]['spending'] += trans.cost*-1;
+        }
+      } else if (Tags().isRent(trans)) {
+        allBars[trans.month] = {'spending': 0.0, 'rent': trans.cost*-1, 'income': 0.0};
+      } else if (Tags().isIncome(trans)) {
+        allBars[trans.month] = {'spending': 0.0, 'rent': 0.0, 'income': trans.cost};
+      } else if (Tags().isSavings(trans)) {
+        allBars[trans.month] = {'spending': 0.0, 'rent': 0.0, 'income': 0.0, };      
       } else {
-        allBars[trans.month] = (-1*trans.cost);
+        allBars[trans.month] = {'spending': trans.cost*-1, 'rent': 0.0, 'income': 0.0};
       }
     }
   }
-  // find the largest bar and add a buffer
-  allBars.forEach((key, value) {
-    if (value > maxSpent) maxSpent = value;
-    if (value < 0) allBars[key] = 0.0;
-  });
-  maxSpent += (maxSpent*.03);
-  debugPrint("Bar Chart data:");
   print(allBars);
+  // find the largest bar
+  allBars.forEach((key, dict) {
+    double value = dict['rent'] + dict['spending'];
+    if (value > maxSpent) maxSpent = value;
+    if (dict['income'] > maxSpent) maxSpent = dict['income'];
+    // zero out negative spending
+    if (value < 0) {
+      allBars[key]['spending'] = 0.0;
+      allBars[key]['rent'] = 0.0;
+      allBars[key]['income'] = 0.0;
+    }
+  });
+  maxSpent += (maxSpent*.03);   // top of the chart should be a bit higher than the highest bar
+  debugPrint("Bar Chart data:");
   setState(() {});
 }
 
@@ -69,27 +94,46 @@ BarChart getBarChart() {
   List<BarChartGroupData> myBars = [];
   int index = 0;
 
-  allBars.forEach((month, cost) {
-    MaterialColor thisColor = currentMonth != null ? (month == currentMonth ? currentMonthColor : monthColor) : monthColor;
-    myBars.add(
-      BarChartGroupData(
-        x: index,
-        barRods: [
-          BarChartRodData(
-            toY: cost,
-            color: thisColor,
-            width: barWidth,
-            borderRadius: BorderRadius.circular(barRadius)
-          )
-        ]
-      )
-    );
-    index++;
-  });
+  List<String> monthsInOrder = ['December', 'November', 'October', 'September', 'August', 'July', 'June', 'April', 'May', 'March', 'February', 'January'];
+
+  for (String month in monthsInOrder) {
+    if (allBars.containsKey(month)) {
+      Color thisColor = currentMonth != null ? (month == currentMonth ? currentMonthColor : monthColor) : monthColor;
+      Color thisColorRent = currentMonth != null ? (month == currentMonth ? currentMonthColorRent : monthColorRent) : monthColorRent;
+      Color thisColorIncome = currentMonth != null ? (month == currentMonth ? currentMonthColorIncome : monthColorIncome) : monthColorIncome;
+      double rent = allBars[month]['rent'];
+      double spending = allBars[month]['spending'];
+      double income = allBars[month]['income'];
+      myBars.add(
+        BarChartGroupData(
+          x: index,
+          barRods: [
+            BarChartRodData(
+              toY: spending,
+              color: thisColor,
+              width: barWidth,
+              rodStackItems: [
+                BarChartRodStackItem(0, rent, thisColorRent),
+                BarChartRodStackItem(rent, spending, thisColor)
+              ],
+              borderRadius: BorderRadius.circular(barRadius)
+            ),
+            BarChartRodData(
+              toY: income,
+              color: thisColorIncome,
+              width: barWidth,
+              borderRadius: BorderRadius.circular(barRadius)
+            )
+          ]
+        )
+      );
+      index++;
+    }
+  }
 
   return BarChart(
-    swapAnimationDuration: Duration(milliseconds: widget.animationTime),
-    swapAnimationCurve: Curves.easeInOutQuint,
+    duration: Duration(milliseconds: widget.animationTime),
+    curve: Curves.easeInOutQuint,
     BarChartData(
       maxY: maxSpent,
       minY: 0,
@@ -120,8 +164,10 @@ BarChart getBarChart() {
         touchTooltipData: BarTouchTooltipData(
           getTooltipItem: (group, groupIndex, rod, rodIndex) {
             String category = allBars.keys.toList()[groupIndex.toInt()];
+            String rent = allBars[category]['rent'].toStringAsFixed(2);
+            String spending = allBars[category]['spending'].toStringAsFixed(2);
             return BarTooltipItem(
-              '$category\n\$${rod.toY.toInt()}',
+              '$category\nSpending: \$$spending \nRent: \$$rent',
               const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,

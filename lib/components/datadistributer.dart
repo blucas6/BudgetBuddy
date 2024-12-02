@@ -127,6 +127,8 @@ class Datadistributer {
         totalspending += row.cost;
       }
     }
+    totalspending *= -1;
+    totalsavings *= -1;
     return {
       'totalspending': totalspending,
       'totalincome': totalincome,

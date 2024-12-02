@@ -10,7 +10,7 @@ class TransactionWidget extends StatefulWidget {
   // This object displays the transaction data table
 
   final Datadistributer datadistributer;  // access to pipeline
-  final double maxTransactionWidgetHeight = 350; // controls how long the widget is
+  final double maxTransactionWidgetHeight = 450; // controls how long the widget is
   final void Function() newDataTrigger;
   const TransactionWidget({super.key, required this.datadistributer, required this.newDataTrigger});
 
@@ -151,7 +151,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
     for (int rowc=0; rowc<currentTransactionStrings.length; rowc++) {
       // for hidden transactions
       bool textIsHidden = false;
-      if (Tags().isValid(currentFilteredTransactions[rowc])) textIsHidden = true;
+      String taglist = currentTransactionStrings[rowc][currentTransactionStrings[0].length-1];
+      if (taglist.contains(Tags().HIDDEN)) textIsHidden = true;
       // for shading on hover
       if (rowHovers.length == rowc) {
         rowHovers.add(List.filled(TransactionObj().getProperties().keys.length, false));

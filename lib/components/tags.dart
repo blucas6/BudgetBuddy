@@ -39,7 +39,13 @@ class Tags {
 
   bool isValid(TransactionObj trans) {
     // check for hidden tag
-    if (trans.tags.contains(HIDDEN)) return true;
+    if (trans.tags.contains(HIDDEN)) return false;
+    return true;
+  }
+
+  bool isRent(TransactionObj trans) {
+    // check for rent tag
+    if (trans.tags.contains(RENT)) return true;
     return false;
   }
 }
