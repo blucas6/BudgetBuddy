@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - feature/unittests # Include your branch here
+      - feature/unittests
   pull_request:
     branches:
       - main
