@@ -25,7 +25,7 @@ void main() {
           newDataTrigger: newDataTrigger,
           datadistributer:
              // databaseService, // Pass the actual database service or data provider
-        ),
+      ),
       ),
     );
   }
