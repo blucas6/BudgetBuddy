@@ -1,4 +1,4 @@
-name: Run Unit Tests on Windows
+name: CI Pipeline for Windows
 
 on:
   push:
@@ -8,10 +8,9 @@ on:
   pull_request:
     branches:
       - main
-      - feature/unittests
 
 jobs:
-  test:
+  build-and-test:
     runs-on: windows-latest
 
     steps:
@@ -21,13 +20,19 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
+          flutter-version: 'stable'
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Run unit tests
         run: flutter test
-        
-      - name: Check Flutter Installation
-        run: flutter --version
+
+      - name: Build Windows App
+        run: flutter build windows
+
+      - name: Archive Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build
+          path: build/windows/runner/Release/
