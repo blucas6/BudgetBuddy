@@ -1,0 +1,30 @@
+name: Run Unit Tests on Windows
+
+on:
+  push:
+    branches:
+      - main
+      - feature/unittests # Include your branch here
+  pull_request:
+    branches:
+      - main
+      - feature/unittests
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test
