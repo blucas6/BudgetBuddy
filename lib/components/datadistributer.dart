@@ -10,9 +10,11 @@ class Datadistributer {
   // This object serves as a data pipeline from the database
   // to the application widgets
 
-  List<TransactionObj> _allTransactions = [];   // holds all transactions available from the database
-  List<String> _allAccounts = [];               // holds a list of accounts available from the database
-  DatabaseService dbs = DatabaseService();      // connection to database
+  List<TransactionObj> _allTransactions =
+      []; // holds all transactions available from the database
+  List<String> _allAccounts =
+      []; // holds a list of accounts available from the database
+  DatabaseService dbs = DatabaseService(); // connection to database
 
   // load the pipeline on instantiation
   Datadistributer() {
@@ -60,6 +62,30 @@ class Datadistributer {
     debugPrint("Done loading data pipeline!");
   }
 
+// loads all the accounts as a list
+  Future<List<String>> loadAccountList() async {
+    List<Map<String, dynamic>> accounts = await dbs.getAllAccounts();
+    List<String> accountlist = [];
+    for (Map<String, dynamic> row in accounts) {
+      accountlist.add(row['name']);
+    }
+    return accountlist;
+  }
+
+// deleting accounts and their related transactions
+  Future<bool> deleteAccount(String accountName) async {
+    try {
+      bool success = await dbs.deleteAccountAndTransactions(accountName);
+      if (success) {
+        _allAccounts = await loadAccountList();
+      }
+      return success;
+    } catch (e) {
+      debugPrint("Error deleting account: $e");
+      return false;
+    }
+  }
+
   // adds a transactions from a transaction file to the database
   Future<bool> addTransactionFileToDatabase(TransactionFile tfile) async {
     try {
@@ -75,7 +101,8 @@ class Datadistributer {
       await loadPipeline();
       return true;
     } catch (e) {
-      debugPrint('Unable to load new data from ${path.basename(tfile.file.path)} database -> $e');
+      debugPrint(
+          'Unable to load new data from ${path.basename(tfile.file.path)} database -> $e');
     }
     return false;
   }
@@ -84,13 +111,13 @@ class Datadistributer {
   Future<bool> updateData(int id, String column, String value) async {
     // TODO: Pass old and new transaction and let this function determine
     // the values that changed to update the database
-    bool success =  await dbs.updateTransactionByID(id, column, value);
+    bool success = await dbs.updateTransactionByID(id, column, value);
     // no need to reload the entire pipeline just update the internal value
-    for (int t=0; t<_allTransactions.length; t++) {
+    for (int t = 0; t < _allTransactions.length; t++) {
       // find matching transaction
       if (_allTransactions[t].id == id) {
         // get the properties as a map
-        Map<String,dynamic> props = _allTransactions[t].getProperties();
+        Map<String, dynamic> props = _allTransactions[t].getProperties();
         // change the value
         props[column] = value;
         // replace the index with the new object
@@ -100,18 +127,8 @@ class Datadistributer {
     return success;
   }
 
-  // loads all the accounts as a list
-  Future<List<String>> loadAccountList() async {
-    List<Map<String,dynamic>> accounts = await dbs.getAllAccounts();
-    List<String> accountlist = [];
-    for (Map<String,dynamic> row in accounts) {
-      accountlist.add(row['name']);
-    }
-    return accountlist;
-  }
-
   // get the total spending over a period
-  Future<Map<String,double>> loadProfile() async {
+  Future<Map<String, double>> loadProfile() async {
     await ensureInitialized();
     double totalspending = 0;
     double totalincome = 0;
@@ -126,7 +143,7 @@ class Datadistributer {
       'totalspending': totalspending,
       'totalincome': totalincome,
       'totalassets': totalincome + totalspending
-      };
+    };
   }
 
   // fetches a data range for the user to filter transactions by
@@ -143,13 +160,12 @@ class Datadistributer {
         totalRange[row.year] = [];
       }
       // first check if month has an associated year in map
-      if (totalRange.containsKey(row.year)
-      && !totalRange[row.year].contains(row.month)) {
+      if (totalRange.containsKey(row.year) &&
+          !totalRange[row.year].contains(row.month)) {
         // if not, add it
         totalRange[row.year].add(row.month);
       }
     }
     return totalRange;
   }
-
 }

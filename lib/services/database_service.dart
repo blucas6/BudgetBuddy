@@ -37,7 +37,9 @@ class DatabaseService {
     // create query string from a template object
     String query = '';
     int index = 0;
-    TransactionObj.defaultTransaction().getSQLProperties().forEach((name, value) {
+    TransactionObj.defaultTransaction()
+        .getSQLProperties()
+        .forEach((name, value) {
       query += '$name $value';
       index++;
       // add divider except for the last value
@@ -49,17 +51,17 @@ class DatabaseService {
     dynamic db;
     try {
       db = await openDatabase(
-            databasePath,
-            version: 1,
-            onCreate: (db, version) async {
-              await db.execute("""
+        databasePath,
+        version: 1,
+        onCreate: (db, version) async {
+          await db.execute("""
                 PRAGMA foreign_keys = ON;
                 CREATE TABLE IF NOT EXISTS $accountTableName (name TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS $transactionTableName ($query,
                 FOREIGN KEY (Account) REFERENCES $accountTableName(name));
               """);
-            },
-          );
+        },
+      );
     } catch (e) {
       debugPrint("Failed to connect to database! -> $e");
     }
@@ -67,13 +69,36 @@ class DatabaseService {
     return db;
   }
 
+// to delete account and transactions
+
+  Future<bool> deleteAccountAndTransactions(String accountName) async {
+    try {
+      await _deleteTransactionsForAccount(accountName);
+      await _deleteAccount(accountName);
+      return true;
+    } catch (e) {
+      debugPrint("Error deleting account $accountName: $e");
+      return false;
+    }
+  }
+
+  Future<void> _deleteTransactionsForAccount(String accountName) async {
+    final db = await database;
+    await db
+        .delete('transactions', where: 'Account = ?', whereArgs: [accountName]);
+  }
+
+  Future<void> _deleteAccount(String accountName) async {
+    final db = await database;
+    await db.delete('accounts', where: 'name = ?', whereArgs: [accountName]);
+  }
+
   // returns whether an account exists or not
   Future<bool> checkIfAccountExists(String accountName) async {
     try {
       final db = await database;
       List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT * FROM $accountTableName WHERE name = '$accountName'"
-      );
+          "SELECT * FROM $accountTableName WHERE name = '$accountName'");
       return result.isNotEmpty;
     } catch (e) {
       return false;
@@ -81,7 +106,7 @@ class DatabaseService {
   }
 
   // returns all the accounts in the account table as a list
-  Future<List<Map<String,dynamic>>> getAllAccounts() async {
+  Future<List<Map<String, dynamic>>> getAllAccounts() async {
     try {
       final db = await database;
       return await db.query(accountTableName);
@@ -136,7 +161,8 @@ class DatabaseService {
   }
 
   // updates a transaction in the database by its id
-  Future<bool> updateTransactionByID(int id, String column, dynamic value) async {
+  Future<bool> updateTransactionByID(
+      int id, String column, dynamic value) async {
     // pass an id to update a transaction at a given column with a certain value
     try {
       final db = await database;
@@ -175,7 +201,8 @@ class DatabaseService {
   // Verification Method
   Future<void> printAllTransactions() async {
     final db = await database;
-    final List<Map<String, dynamic>> results = await db.query(transactionTableName);
+    final List<Map<String, dynamic>> results =
+        await db.query(transactionTableName);
     if (results.isNotEmpty) {
       debugPrint('--- Transactions in Database ---');
       print(results);

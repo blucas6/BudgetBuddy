@@ -7,19 +7,20 @@ import 'package:budgetbuddy/components/transactionfile.dart';
 class AccountBar extends StatefulWidget {
   // This object displays the account information
 
-  final void Function() newDataTrigger;   // triggers a reload of all widgets
-  final Datadistributer datadistributer;  // access to the data pipeline
+  final void Function() newDataTrigger; // triggers a reload of all widgets
+  final Datadistributer datadistributer; // access to the data pipeline
 
-  const AccountBar({super.key, required this.newDataTrigger, required this.datadistributer});
+  const AccountBar(
+      {super.key, required this.newDataTrigger, required this.datadistributer});
 
   @override
   State<AccountBar> createState() => _AccountBarState();
 }
 
 class _AccountBarState extends State<AccountBar> {
-  List<String> accountList = [];  // all accounts available from the database
+  List<String> accountList = []; // all accounts available from the database
 
-  @override 
+  @override
   void initState() {
     super.initState();
     loadAccounts();
@@ -82,6 +83,40 @@ class _AccountBarState extends State<AccountBar> {
     });
   }
 
+  Future<void> deleteAccount(String accountName) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Account"),
+        content:
+            Text("Are you sure you want to delete the account: $accountName?"),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Cancel")),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text("Confirm")),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      bool success = await widget.datadistributer.deleteAccount(accountName);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$accountName deleted successfully')),
+        );
+        loadAccounts();
+        widget.newDataTrigger();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete account')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -101,6 +136,10 @@ class _AccountBarState extends State<AccountBar> {
                         const Icon(Icons.account_balance, color: Colors.blue),
                         const SizedBox(width: 8),
                         Text(account, style: const TextStyle(fontSize: 16)),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () => deleteAccount(account),
+                        ),
                       ],
                     ))
                 .toList(),
@@ -108,11 +147,8 @@ class _AccountBarState extends State<AccountBar> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: addNewAccount,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 12, 183, 226),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            ),
-            child: const Text('+ Add Account', style: TextStyle(fontSize: 16)),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('Add New Account'),
           ),
         ],
       ),
