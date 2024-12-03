@@ -1,53 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:budgetbuddy/widgets/filterwidget.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
-class MockDatadistributer implements Datadistributer {
-  @override
-  Future<Map<String, dynamic>> getTotalDateRange() async {
-    return {
-      '2023': ['January', 'February', 'March'],
-      '2022': ['October', 'November', 'December'],
-    };
-  }
-
-  @override
-  Future<void> ensureInitialized() async {}
-
-  @override
-  Future<List<String>> loadAccountList() async {
-    return ['Account 1', 'Account 2'];
-  }
-
-  @override
-  Future<void> addTransactionFileToDatabase(dynamic transactionFile) async {}
-
-  @override
-  Future<void> loadPipeline() async {}
-
-  @override
-  Future<void> deleteTransaction(String transactionId) async {}
-
-  @override
-  Future<void> updateTransaction(
-      String transactionId, Map<String, dynamic> updatedData) async {}
-
-  @override
-  Future<List<Map<String, dynamic>>> loadTransactions(
-      String? year, String? month) async {
-    return [];
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> filterTransactions(
-      Map<String, dynamic> filters) async {
-    return [];
-  }
-
-  @override
-  Future<void> clearDatabase() async {}
-}
+// Mocking Datadistributer using Mocktail
+class MockDatadistributer extends Mock implements Datadistributer {}
 
 void main() {
   group('FilterWidget Tests', () {
@@ -57,57 +15,136 @@ void main() {
       mockDatadistributer = MockDatadistributer();
     });
 
-    testWidgets('Displays dropdowns and initializes correctly',
+    testWidgets('FilterWidget displays year and month dropdowns correctly',
         (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FilterWidget(
-            datadistributer: mockDatadistributer,
-            newFilterTrigger: (_, __) {},
-          ),
-        ),
-      );
+      // Mock getTotalDateRange to return a sample date range
+      when(() => mockDatadistributer.getTotalDateRange())
+          .thenAnswer((_) async => {
+                '2022': ['January', 'February'],
+                '2023': ['March', 'April'],
+              });
 
-      await tester.pumpAndSettle();
-
-      expect(find.text('Select a year'), findsOneWidget);
-      expect(find.text('Select a month'), findsOneWidget);
-    });
-
-    testWidgets('Allows selecting a year and updates months accordingly',
-        (WidgetTester tester) async {
       String? selectedYear;
       String? selectedMonth;
 
+      // Build the FilterWidget
       await tester.pumpWidget(
         MaterialApp(
-          home: FilterWidget(
-            datadistributer: mockDatadistributer,
-            newFilterTrigger: (year, month) {
-              selectedYear = year;
-              selectedMonth = month;
-            },
+          home: Scaffold(
+            body: FilterWidget(
+              datadistributer: mockDatadistributer,
+              newFilterTrigger: (year, month) {
+                selectedYear = year;
+                selectedMonth = month;
+              },
+            ),
           ),
         ),
       );
 
+      // Wait for the widget to fetch data
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Select a year'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('2023').last);
+      // Verify year dropdown is present
+      expect(find.text('Select a year'), findsOneWidget);
+      expect(find.byType(DropdownButton), findsWidgets);
+
+      // Open year dropdown
+      await tester.tap(find.text('Select a year'), warnIfMissed: false);
       await tester.pumpAndSettle();
 
-      expect(selectedYear, '2023');
+      // Verify year options
+      expect(find.text('2022'), findsOneWidget);
+      expect(find.text('2023'), findsOneWidget);
+
+      // Select a year
+      await tester.tap(find.text('2022').last, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // Verify the month dropdown is updated
+      expect(find.text('Select a month'), findsOneWidget);
+
+      // Open month dropdown
+      await tester.tap(find.text('Select a month'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // Verify month options for the selected year
+      expect(find.text('January'), findsOneWidget);
+      expect(find.text('February'), findsOneWidget);
+
+      // Select a month
+      await tester.tap(find.text('January').last, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // Verify the newFilterTrigger callback was triggered correctly
+      expect(selectedYear, equals('2022'));
+      expect(selectedMonth, equals('January'));
+    });
+
+    testWidgets('FilterWidget resets month when a new year is selected',
+        (WidgetTester tester) async {
+      // Mock getTotalDateRange to return a sample date range
+      when(() => mockDatadistributer.getTotalDateRange())
+          .thenAnswer((_) async => {
+                '2022': ['January', 'February'],
+                '2023': ['March', 'April'],
+              });
+
+      String? selectedYear;
+      String? selectedMonth;
+
+      // Build the FilterWidget
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: FilterWidget(
+              datadistributer: mockDatadistributer,
+              newFilterTrigger: (year, month) {
+                selectedYear = year;
+                selectedMonth = month;
+              },
+            ),
+          ),
+        ),
+      );
+
+      // Wait for the widget to fetch data
+      await tester.pumpAndSettle();
+
+      // Select a year
+      await tester.tap(find.text('Select a year'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('2022').last, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // Select a month
+      await tester.tap(find.text('Select a month'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('January').last, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // Verify the newFilterTrigger callback was triggered
+      expect(selectedYear, equals('2022'));
+      expect(selectedMonth, equals('January'));
+
+      // Change the year
+      await tester.tap(find.text('2022'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('2023').last, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // Verify month is reset
       expect(selectedMonth, isNull);
 
-      await tester.tap(find.text('Select a month'));
+      // Select a new month
+      await tester.tap(find.text('Select a month'), warnIfMissed: false);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('February').last);
+      await tester.tap(find.text('March').last, warnIfMissed: false);
       await tester.pumpAndSettle();
 
-      expect(selectedYear, '2023');
-      expect(selectedMonth, 'February');
+      // Verify the newFilterTrigger callback was triggered with new values
+      expect(selectedYear, equals('2023'));
+      expect(selectedMonth, equals('March'));
     });
   });
 }

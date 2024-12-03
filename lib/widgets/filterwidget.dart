@@ -1,5 +1,3 @@
-
-
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:flutter/material.dart';
 
@@ -9,24 +7,27 @@ class FilterWidget extends StatefulWidget {
 
   // this callback triggers the main app to reload all widgets
   final void Function(String? year, String? month) newFilterTrigger;
-  final Datadistributer datadistributer;  // connection to the data pipeline
+  final Datadistributer datadistributer; // connection to the data pipeline
 
-  const FilterWidget({super.key, required this.newFilterTrigger, required this.datadistributer});
+  const FilterWidget(
+      {super.key,
+      required this.newFilterTrigger,
+      required this.datadistributer});
 
-  @override  
+  @override
   State<FilterWidget> createState() => FilterWidgetState();
 }
 
 class FilterWidgetState extends State<FilterWidget> {
-  String? currentMonth;   // current month filter
-  String? currentYear;    // current year filter
+  String? currentMonth; // current month filter
+  String? currentYear; // current year filter
 
   // dataRange holds the date ranges available per what is in the database
   // the structure is: { <year1> : [month1, month2, ...],
   //                     <year2> : [month4, month5, ..] }
   Map<String, dynamic> dataRange = {};
 
-  @override  
+  @override
   void initState() {
     super.initState();
     loadData();
@@ -46,12 +47,7 @@ class FilterWidgetState extends State<FilterWidget> {
     // if the current year is loaded, go through the list of months available
     if (currentYear != null && dataRange.containsKey(currentYear)) {
       for (String month in dataRange[currentYear]) {
-        choices.add(
-          DropdownMenuItem(
-            value:month,
-            child: Text(month)
-          )
-        );
+        choices.add(DropdownMenuItem(value: month, child: Text(month)));
       }
     }
     return choices;
@@ -62,12 +58,7 @@ class FilterWidgetState extends State<FilterWidget> {
     List<DropdownMenuItem> choices = [];
     // for each year in the map, create a drop down item
     dataRange.forEach((year, months) {
-      choices.add(
-        DropdownMenuItem(
-          value: year,
-          child: Text(year)
-        )
-      );
+      choices.add(DropdownMenuItem(value: year, child: Text(year)));
     });
     return choices;
   }
@@ -75,35 +66,30 @@ class FilterWidgetState extends State<FilterWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButton(
-              value: currentYear,
-              hint: const Text('Select a year'),
-              items: getYearChoices(), 
-              onChanged: (dynamic newValue) {
-                // on new value set the month to null
-                currentYear = newValue;
-                currentMonth = null;
-                // trigger the app to reload filters
-                widget.newFilterTrigger(currentYear, currentMonth);
-                setState(() {});
-              }
-            ),
-            DropdownButton(
-              value: currentMonth,
-              hint: const Text('Select a month'),
-              items: getMonthChoices(), 
-              onChanged: (dynamic newValue) {
-                currentMonth = newValue;
-                // trigger the app to reload filters
-                widget.newFilterTrigger(currentYear, currentMonth);
-                setState(() {});
-              }
-            )
-          ]
-        ),
-      );
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        DropdownButton(
+            value: currentYear,
+            hint: const Text('Select a year'),
+            items: getYearChoices(),
+            onChanged: (dynamic newValue) {
+              // on new value set the month to null
+              currentYear = newValue;
+              currentMonth = null;
+              // trigger the app to reload filters
+              widget.newFilterTrigger(currentYear, currentMonth);
+              setState(() {});
+            }),
+        DropdownButton(
+            value: currentMonth,
+            hint: const Text('Select a month'),
+            items: getMonthChoices(),
+            onChanged: (dynamic newValue) {
+              currentMonth = newValue;
+              // trigger the app to reload filters
+              widget.newFilterTrigger(currentYear, currentMonth);
+              setState(() {});
+            })
+      ]),
+    );
   }
 }
