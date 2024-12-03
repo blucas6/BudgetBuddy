@@ -31,6 +31,7 @@ Color monthColorIncome = const Color.fromARGB(255, 14, 94, 151);
 double barWidth = 25;
 double barRadius = 4;
 double maxSpent = 0;
+double maxSpentMIN = 1000;
 
 @override
 void initState() {
@@ -135,7 +136,7 @@ BarChart getBarChart() {
     duration: Duration(milliseconds: widget.animationTime),
     curve: Curves.easeInOutQuint,
     BarChartData(
-      maxY: maxSpent,
+      maxY: maxSpent > maxSpentMIN ? maxSpent : maxSpentMIN,
       minY: 0,
       barGroups: myBars,
       borderData: FlBorderData(show: true),
