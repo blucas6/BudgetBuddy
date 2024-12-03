@@ -96,7 +96,8 @@ class _AccountBarState extends State<AccountBar> {
       }
 
       // Delete associated data from the database
-      await widget.datadistributer.deleteTransactionsByAccount(account);
+      bool success = await widget.datadistributer.deleteTransactionsByAccount(account);
+      if (success) widget.newDataTrigger();
       print("Associated data deleted from database.");
     } catch (e) {
       print("Error deleting account data: $e");
@@ -130,47 +131,41 @@ class _AccountBarState extends State<AccountBar> {
           ),
           const SizedBox(height: 10),
           Column(
-            children: accountList
-                .map((account) => Row(
-                      children: [
-                        const Icon(Icons.account_balance, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        Text(account, style: const TextStyle(fontSize: 16)),
-                        const Spacer(),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            // Show confirmation dialog before deleting
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text('Delete Account'),
-                                  content: Text(
-                                      'Are you sure you want to delete the $account account and its data?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                        deleteAccountData(account);
-                                      },
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                );
+            children: accountList.map((account) => Row(
+              children: [
+                const Icon(Icons.account_balance, color: Colors.blue),
+                const SizedBox(width: 8),
+                Text(account, style: const TextStyle(fontSize: 16)),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    // Show confirmation dialog before deleting
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Delete Account'),
+                          content: Text('Are you sure you want to delete the $account account and its data?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                deleteAccountData(account);
                               },
-                            );
-                          },
-                        ),
-                      ],
-                    ))
-                .toList(),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            )).toList(),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
