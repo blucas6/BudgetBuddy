@@ -1,6 +1,7 @@
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 import 'package:budgetbuddy/widgets/editmenuwidget.dart';
+import 'package:budgetbuddy/components/tags.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
@@ -9,9 +10,9 @@ class TransactionWidget extends StatefulWidget {
   // This object displays the transaction data table
 
   final Datadistributer datadistributer;  // access to pipeline
-  final double maxTransactionWidgetHeight = 400; // controls how long the widget is
-
-  const TransactionWidget({super.key, required this.datadistributer});
+  final double maxTransactionWidgetHeight = 450; // controls how long the widget is
+  final void Function() newDataTrigger;
+  const TransactionWidget({super.key, required this.datadistributer, required this.newDataTrigger});
 
   @override
   State<TransactionWidget> createState() => TransactionWidgetState();
@@ -148,6 +149,11 @@ class TransactionWidgetState extends State<TransactionWidget> {
     Map<String, dynamic> displayProperties = TransactionObj.defaultTransaction().getDisplayProperties();
     // loop through the transactions to create the cells and rows
     for (int rowc=0; rowc<currentTransactionStrings.length; rowc++) {
+      // for hidden transactions
+      bool textIsHidden = false;
+      String taglist = currentTransactionStrings[rowc][currentTransactionStrings[0].length-1];
+      if (taglist.contains(Tags().HIDDEN)) textIsHidden = true;
+      // for shading on hover
       if (rowHovers.length == rowc) {
         rowHovers.add(List.filled(TransactionObj().getProperties().keys.length, false));
       }
@@ -174,7 +180,11 @@ class TransactionWidgetState extends State<TransactionWidget> {
                     color: rowc % 2 != 0 ? (rowHovers[rowc][colc] ? Color.fromARGB(255, 233, 233, 233) : Color.fromARGB(255, 255, 255, 255)) : (rowHovers[rowc][colc] ? Color.fromARGB(255, 193, 222, 233) : Color.fromARGB(255, 201, 240, 255)),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
-                      child: Text(cellText)),
+                      child: Text(cellText, 
+                        style: TextStyle(fontStyle: textIsHidden ? FontStyle.italic : FontStyle.normal,
+                                          color: textIsHidden ? Colors.grey : Colors.black)
+                      )
+                    ),
                   ),
                 ),
               ),
@@ -341,7 +351,8 @@ class TransactionWidgetState extends State<TransactionWidget> {
           // reload after user adds or removes a tag
           // the pipeline should already have the data necessary
           // with only the changed value updated
-          loadTransactions();
+          // reload all widgets
+          widget.newDataTrigger();
         }
       }
     }

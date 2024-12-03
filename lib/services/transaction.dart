@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 class TransactionObj {
   late DateTime date;
   int? id, cardn;
-  double? cost;
+  late double cost;
   String? content, category, account;
   late List<String> tags;
   String separator = ';';
@@ -14,11 +14,12 @@ class TransactionObj {
       this.cardn,
       this.content,
       this.category,
-      this.cost,
+      double? somecost,
       this.account,
       var sometags}) {
     date = dates != null ? DateTime.parse(dates) : DateTime.parse('1980-01-01');
     tags = sometags is String ? sometags.split(separator) : (sometags != null ? sometags : []);
+    cost = somecost == null ? 0 : somecost;
   }
 
   // return a map of the object
