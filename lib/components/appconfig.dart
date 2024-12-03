@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Appconfig {
+  // This object serves as the configuration object for the application
+  
+  // singleton instance, load on creation
   Appconfig._internal() {
     load();
   }
@@ -13,6 +16,7 @@ class Appconfig {
 
   Map<String, dynamic>? accountInfo;
 
+  // load the application config as json
   void load() async {
     try {
       String jstring = await rootBundle.loadString('assets/accounttypes.json');

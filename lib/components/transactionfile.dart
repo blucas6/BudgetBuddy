@@ -1,29 +1,32 @@
 import 'dart:io';
-import 'package:budgetbuddy/config/appconfig.dart';
+import 'package:budgetbuddy/components/appconfig.dart';
 import 'package:budgetbuddy/services/database_service.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:excel/excel.dart';
+import 'package:intl/intl.dart';
 
 class TransactionFile {
-  File file;
-  String? headers;
-  List<List<dynamic>> csvData = [];
-  List<TransactionObj> data = [];
-  String account = '';
-  DatabaseService dbs = DatabaseService();
-  Appconfig appconfig = Appconfig();
+  File file;                                // the actual transaction file
+  String? headers;                          // headers for the file (used in identifying the account type)
+  List<List<dynamic>> csvData = [];         // raw data from the csv
+  List<TransactionObj> data = [];           // transactionObjs loaded from the csv
+  String account = '';                      // will be loaded with the account name
+  DatabaseService dbs = DatabaseService();  // connection to database instance
+  Appconfig appconfig = Appconfig();        // application config for parsing values
 
   TransactionFile(this.file);
 
+  // on load, locate the account name and load all data
   Future<bool> load() async {
-    bool status = await readFile(file);
-    status = await identifyAccount();
-    status = loadTransactionObjs();
-    return status;
+    bool readfilestatus = await readFile(file);
+    bool identifyaccountstatus = await identifyAccount();
+    bool loadtransactionsstatus = loadTransactionObjs();
+    return readfilestatus && identifyaccountstatus && loadtransactionsstatus;
   }
 
+  // parses the config for the appropriate account type
   Future<bool> identifyAccount() async {
     if (appconfig.accountInfo != null) {
       for (var accounttype in appconfig.accountInfo!.keys) {
@@ -33,14 +36,17 @@ class TransactionFile {
           return true;
         }
       }
+      debugPrint("Unmatched account type!");
     } else {
       debugPrint('Config not loaded!');
     }
     return false;
   }
 
+  // reads the file and loads the csvData object
   Future<bool> readFile(File file) async {
-    if (file.path.endsWith('.csv')) {
+    // Check the file extension to determine how to read the file
+    if (file.path.endsWith('.csv') || file.path.endsWith('.CSV')) {
       String csvDataStr = await file.readAsString();
       csvData = const CsvToListConverter().convert(csvDataStr);
       headers = csvData[0].join(',');
@@ -66,6 +72,7 @@ class TransactionFile {
     }
   }
 
+  // loads the data object with transactions from the file
   bool loadTransactionObjs() {
     if (appconfig.accountInfo != null) {
       Map<String, dynamic> transactionMap = TransactionObj().getBlankMap();
@@ -73,18 +80,32 @@ class TransactionFile {
         for (var j = 0; j < csvData[0].length; j++) {
           String key = csvData[0][j];
           dynamic value = csvData[i][j];
-          if (appconfig.accountInfo![account]['format'].containsKey(key)) {
-            String transObjKey = appconfig.accountInfo![account]['format'][key];
-            transactionMap[transObjKey] = value;
+          // check if config maps the given key to a transactionobj key
+          if (value != '' && appconfig.accountInfo![account]['format'].containsKey(key)) {
+            // load the format to check for additional parsing
+            Map<String,dynamic> keyFormat = appconfig.accountInfo![account]['format'][key];
+            // if a value requires addional parsing, check the 'parsing' key
+            if (keyFormat.containsKey('parsing')) {
+              // check the type of parsing
+              if (keyFormat['parsing'] == 'dateformat') {
+                // check the parsing format for the proper datetime parsing format
+                value = DateFormat(keyFormat['formatter']).parse(value);
+              } else if (keyFormat['parsing'] == 'spending' && keyFormat['formatter'] == 'inverse') {
+                value = -value.toDouble();
+              }
+            }
+            // key is present therefore place the value of the csv into the transaction map
+            transactionMap[keyFormat['column']] = value;
           } else {
-            debugPrint("Key does not exist -> $key");
+            // debugPrint("Key does not exists -> $key");
           }
         }
-        TransactionObj currentTrans =
-            TransactionObj.loadFromMap(transactionMap);
+        // add account type as a column
+        transactionMap['Account'] = account;
+        // done going through columns, add transactionobj to list
+        print(transactionMap);
+        TransactionObj currentTrans = TransactionObj.loadFromMap(transactionMap);
         data.add(currentTrans);
-        debugPrint("New transaction obj:");
-        print(currentTrans.getProperties());
       }
       return true;
     }

@@ -10,62 +10,105 @@ class DatabaseService {
   static final DatabaseService _instance = DatabaseService._constructor();
   factory DatabaseService() => _instance;
 
+  // Tablenames
   static final String transactionTableName = "transactions";
+  static final String accountTableName = "accounts";
 
   DatabaseService._constructor() {
+    // setup the database on constructor call
     loadDatabase();
   }
 
-  void loadDatabase() async {
+  // database getter
+  Future<Database> get database async {
+    // database getter
+    if (_db != null) return _db!;
+    _db = await loadDatabase();
+    return _db!;
+  }
+
+  // loads the database if it doesn't exist
+  Future<Database> loadDatabase() async {
+    // get user area
     final databaseDirPath = await getApplicationSupportDirectory();
     final databasePath = join(databaseDirPath.path, "master_db.db");
 
     String query = '';
-    String type = 'TEXT';
-    String restriction = 'NOT NULL';
     int index = 0;
-    TransactionObj.defaultTransaction().getProperties().forEach((name, value) {
-      if (value is int?) {
-        type = 'INTEGER';
-      } else if (value is DateTime) {
-        type = 'DATE';
-      } else if (value is double?) {
-        type = 'DOUBLE';
-      } else {
-        type = 'TEXT';
-      }
-
-      if (index == 0) {
-        restriction = 'PRIMARY KEY AUTOINCREMENT';
-      } else {
-        restriction = 'NOT NULL';
-      }
-      query += '$name $type $restriction';
+    TransactionObj.defaultTransaction().getSQLProperties().forEach((name, value) {
+      query += '$name $value';
       index++;
       if (index != TransactionObj().getProperties().keys.length) {
         query += ', ';
       }
     });
-    debugPrint("Running query: $query");
-
+    // Open or create the database at the custom location'
+    dynamic db;
     try {
-      _db = await openDatabase(
-        databasePath,
-        version: 1,
-        onCreate: (db, version) async {
-          await db.execute(
-              "CREATE TABLE IF NOT EXISTS $transactionTableName ($query)");
-        },
-      );
+      db = await openDatabase(
+            databasePath,
+            version: 1,
+            onCreate: (db, version) async {
+              await db.execute("""
+                PRAGMA foreign_keys = ON;
+                CREATE TABLE IF NOT EXISTS $accountTableName (name TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS $transactionTableName ($query,
+                FOREIGN KEY (Account) REFERENCES $accountTableName(name));
+              """);
+            },
+          );
     } catch (e) {
       debugPrint("Failed to connect to database! -> $e");
     }
     debugPrint("Database initialized at: $databasePath");
+    return db;
   }
 
+  // returns whether an account exists or not
+  Future<bool> checkIfAccountExists(String accountName) async {
+    try {
+      final db = await database;
+      List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT * FROM $accountTableName WHERE name = '$accountName'"
+      );
+      return result.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // returns all the accounts in the account table as a list
+  Future<List<Map<String,dynamic>>> getAllAccounts() async {
+    try {
+      final db = await database;
+      return await db.query(accountTableName);
+    } catch (e) {
+      debugPrint("Accounts query failed -> $e");
+      return [{}];
+    }
+  }
+
+  // adds an account type to the account table name
+  Future<bool> addAccount(String accountName) async {
+    // accounts must be added before transaction data because of the
+    // foreign key constraint
+    try {
+      final db = await database;
+      await db.insert(accountTableName, {'name': accountName});
+      debugPrint("Account added: $accountName");
+      return true;
+    } catch (e) {
+      debugPrint('Add account failed: $e');
+      return false;
+    }
+  }
+
+  // adds a singular transaction to the transaction table
   Future<bool> addTransaction(TransactionObj trans) async {
     try {
-      await _db!.insert(transactionTableName, trans.getPropertiesNoID());
+      // sqlite will increment the id, so provide a map with no id
+      final db = await database;
+      await db.insert(transactionTableName, trans.getPropertiesNoID());
       debugPrint("Transaction added: ");
       print(trans.getProperties());
       return true;
@@ -75,20 +118,26 @@ class DatabaseService {
     }
   }
 
+  // gets all transactions
   Future<List<TransactionObj>> getTransactions() async {
     try {
-      final data = await _db!.query(transactionTableName);
+      final db = await database;
+      final data = await db.query(transactionTableName);
+      // make use of transactionobj interface
+      // create objects to return from database
       return data.map((entry) => TransactionObj.loadFromMap(entry)).toList();
     } catch (e) {
       debugPrint('Read transactions failed: $e');
-      return [];
     }
+    return [];
   }
 
-  Future<bool> updateTransactionByID(
-      int id, String column, dynamic value) async {
+  // updates a transaction in the database by its id
+  Future<bool> updateTransactionByID(int id, String column, dynamic value) async {
+    // pass an id to update a transaction at a given column with a certain value
     try {
-      int count = await _db!.update(
+      final db = await database;
+      int count = await db.update(
         transactionTableName,
         {column: value},
         where: 'ID = ?',
@@ -101,9 +150,11 @@ class DatabaseService {
     }
   }
 
+  // deletes a transaction by its id
   Future<bool> deleteTransaction(int id) async {
     try {
-      int count = await _db!.delete(
+      final db = await database;
+      int count = await db.delete(
         transactionTableName,
         where: 'ID = ?',
         whereArgs: [id],
@@ -131,9 +182,8 @@ class DatabaseService {
   }
 
   Future<void> printAllTransactions() async {
-    final List<Map<String, dynamic>> results =
-        await _db!.query(transactionTableName);
-
+    final db = await database;
+    final List<Map<String, dynamic>> results = await db.query(transactionTableName);
     if (results.isNotEmpty) {
       debugPrint('--- Transactions in Database ---');
       print(results);

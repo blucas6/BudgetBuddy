@@ -44,6 +44,7 @@ dependencies:
   excel: ^2.0.0
   sqflite_common_ffi: ^2.3.4
   path_provider: ^2.0.11
+  window_manager: ^0.4.3
 
 dev_dependencies:
   flutter_test:
