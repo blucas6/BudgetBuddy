@@ -34,7 +34,7 @@ class _AccountBarState extends State<AccountBar> {
   // adds a new transaction file to the database
   Future<void> addNewAccount() async {
     String account = '';
-    // Ask user for a file
+    // Ask the user for a file
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
       File file = File(result.files.single.path!);
@@ -82,6 +82,43 @@ class _AccountBarState extends State<AccountBar> {
     });
   }
 
+  // Delete the selected file from local storage and the associated data from the database
+  Future<void> deleteAccountData(String account) async {
+    try {
+      // Delete the file associated with the account
+      final filePath = await getFilePathForAccount(account);
+      if (filePath != null) {
+        File file = File(filePath);
+        if (await file.exists()) {
+          await file.delete();
+          print("File deleted from storage.");
+        }
+      }
+
+      // Delete associated data from the database
+      bool success = await widget.datadistributer.deleteTransactionsByAccount(account);
+      bool success2 = await widget.datadistributer.deleteAccount(account);
+      if (success && success2) widget.newDataTrigger();
+      print("Associated data deleted from database.");
+    } catch (e) {
+      print("Error deleting account data: $e");
+    }
+
+    setState(() {
+      accountList.remove(account);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("$account deleted successfully."),
+    ));
+  }
+
+  // Mock function to fetch the file path for an account (replace with actual logic)
+  Future<String?> getFilePathForAccount(String account) async {
+    // Replace with logic to fetch the actual file path for the account
+    return '/path/to/$account/file';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -95,15 +132,42 @@ class _AccountBarState extends State<AccountBar> {
           ),
           const SizedBox(height: 10),
           Column(
-            children: accountList
-                .map((account) => Row(
-                      children: [
-                        const Icon(Icons.account_balance, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        Text(account, style: const TextStyle(fontSize: 16)),
-                      ],
-                    ))
-                .toList(),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: accountList.map((account) => Row(
+              children: [
+                const Icon(Icons.account_balance, color: Colors.blue),
+                const SizedBox(width: 8),
+                Text(account, style: const TextStyle(fontSize: 16)),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    // Show confirmation dialog before deleting
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Delete Account'),
+                          content: Text('Are you sure you want to delete the $account account and its data?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                deleteAccountData(account);
+                              },
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            )).toList(),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
