@@ -28,11 +28,8 @@ class TransactionFile {
 
   // parses the config for the appropriate account type
   Future<bool> identifyAccount() async {
-    // check config is loaded
     if (appconfig.accountInfo != null) {
-      // loop through all accounts (keys)
       for (var accounttype in appconfig.accountInfo!.keys) {
-        // if an account matches the 'headers' specifier, match that account
         if (appconfig.accountInfo![accounttype]['headers'] == headers) {
           debugPrint("Account type matched: $account");
           account = accounttype;
@@ -51,29 +48,20 @@ class TransactionFile {
     // Check the file extension to determine how to read the file
     if (file.path.endsWith('.csv') || file.path.endsWith('.CSV')) {
       String csvDataStr = await file.readAsString();
-      // get the data in a list
       csvData = const CsvToListConverter().convert(csvDataStr);
-      // get the headers in a string
       headers = csvData[0].join(',');
       debugPrint("CSV Headers: $headers");
       return true;
     } else if (file.path.endsWith('.xlsx')) {
-      // Read Excel file
       var bytes = await file.readAsBytes();
       var excel = Excel.decodeBytes(bytes);
       var firstTable = excel.tables[excel.tables.keys.first];
       if (firstTable != null) {
         csvData = firstTable.rows;
-        headers = firstTable.rows[0].map((cell) => 
-                cell?.value != null
-                ? cell?.value.toString()
-                : ''
-              ).join(',');
+        headers = firstTable.rows[0]
+            .map((cell) => cell?.value != null ? cell?.value.toString() : '')
+            .join(',');
         debugPrint("Excel Headers: $headers");
-        // Debugging each row
-        for (var row in firstTable.rows) {
-          debugPrint("Row data: ${row.map((cell) => cell?.value).toList()}");
-        }
         return true;
       } else {
         debugPrint("No tables found in Excel file.");
@@ -87,12 +75,9 @@ class TransactionFile {
   // loads the data object with transactions from the file
   bool loadTransactionObjs() {
     if (appconfig.accountInfo != null) {
-      // start with a default map with all keys already created
       Map<String, dynamic> transactionMap = TransactionObj().getBlankMap();
-      // loop through starting at the first row of data
-      for (var i=1; i<csvData.length; i++) {
-        // loop through each column in that row
-        for (var j=0; j<csvData[0].length; j++) {
+      for (var i = 1; i < csvData.length; i++) {
+        for (var j = 0; j < csvData[0].length; j++) {
           String key = csvData[0][j];
           dynamic value = csvData[i][j];
           // check if config maps the given key to a transactionobj key
@@ -125,5 +110,29 @@ class TransactionFile {
       return true;
     }
     return false;
+  }
+
+  void addTransactionToDatabase() {
+    for (TransactionObj trans in data) {
+      dbs.addTransaction(trans);
+    }
+  }
+
+  Future<void> deleteTransactionsByAccount() async {
+    bool result = await dbs.deleteTransactionsByAccount(account);
+    if (result) {
+      debugPrint("All transactions for account $account deleted successfully.");
+    } else {
+      debugPrint("Failed to delete transactions for account $account.");
+    }
+  }
+
+  Future<void> deleteFile() async {
+    if (await file.exists()) {
+      await file.delete();
+      debugPrint("File deleted.");
+    } else {
+      debugPrint("File not found for deletion.");
+    }
   }
 }

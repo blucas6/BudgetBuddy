@@ -152,4 +152,11 @@ class Datadistributer {
     return totalRange;
   }
 
+  Future<bool> deleteTransactionsByAccount(String account) async {
+    await ensureInitialized();
+    bool success = await dbs.deleteTransactionsByAccount(account);
+    await loadPipeline();
+    return success;
+  }
+
 }

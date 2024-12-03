@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 
 class DatabaseService {
-  // currently loads the database at: C:\Users\<user>\AppData\Roaming\com.example\budgetbuddy (windows)
   static Database? _db;
   static final DatabaseService _instance = DatabaseService._constructor();
   factory DatabaseService() => _instance;
@@ -34,13 +33,11 @@ class DatabaseService {
     final databaseDirPath = await getApplicationSupportDirectory();
     final databasePath = join(databaseDirPath.path, "master_db.db");
 
-    // create query string from a template object
     String query = '';
     int index = 0;
     TransactionObj.defaultTransaction().getSQLProperties().forEach((name, value) {
       query += '$name $value';
       index++;
-      // add divider except for the last value
       if (index != TransactionObj().getProperties().keys.length) {
         query += ', ';
       }
@@ -142,9 +139,7 @@ class DatabaseService {
       final db = await database;
       int count = await db.update(
         transactionTableName,
-        {
-          column: value,
-        },
+        {column: value},
         where: 'ID = ?',
         whereArgs: [id],
       );
@@ -157,7 +152,6 @@ class DatabaseService {
 
   // deletes a transaction by its id
   Future<bool> deleteTransaction(int id) async {
-    // pass an id and delete the column at that id
     try {
       final db = await database;
       int count = await db.delete(
@@ -172,7 +166,21 @@ class DatabaseService {
     }
   }
 
-  // Verification Method
+  // Delete all transactions by account
+  Future<bool> deleteTransactionsByAccount(String account) async {
+    try {
+      int count = await _db!.delete(
+        transactionTableName,
+        where: 'account = ?',
+        whereArgs: [account],
+      );
+      return count > 0;
+    } catch (e) {
+      debugPrint('Delete transactions by account failed: $e');
+      return false;
+    }
+  }
+
   Future<void> printAllTransactions() async {
     final db = await database;
     final List<Map<String, dynamic>> results = await db.query(transactionTableName);
