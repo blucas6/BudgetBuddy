@@ -20,7 +20,7 @@ void main() async {
   if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-    // windowManager.setMinimumSize(const Size(1600,900));
+    windowManager.setMinimumSize(const Size(1600,900));
   }
 
   runApp(const MyApp());

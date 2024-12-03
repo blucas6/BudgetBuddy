@@ -94,7 +94,7 @@ BarChart getBarChart() {
   List<BarChartGroupData> myBars = [];
   int index = 0;
 
-  List<String> monthsInOrder = ['December', 'November', 'October', 'September', 'August', 'July', 'June', 'April', 'May', 'March', 'February', 'January'];
+  List<String> monthsInOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   for (String month in monthsInOrder) {
     if (allBars.containsKey(month)) {

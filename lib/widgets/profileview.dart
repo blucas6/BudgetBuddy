@@ -33,6 +33,7 @@ class ProfileViewState extends State<ProfileView> {
   void loadData() async {
     debugPrint("Reloading profile widget");
     profile = await widget.datadistributer.loadProfile();
+    print(profile);
     setState(() {});
   }
 
