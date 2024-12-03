@@ -97,7 +97,8 @@ class _AccountBarState extends State<AccountBar> {
 
       // Delete associated data from the database
       bool success = await widget.datadistributer.deleteTransactionsByAccount(account);
-      if (success) widget.newDataTrigger();
+      bool success2 = await widget.datadistributer.deleteAccount(account);
+      if (success && success2) widget.newDataTrigger();
       print("Associated data deleted from database.");
     } catch (e) {
       print("Error deleting account data: $e");
@@ -131,6 +132,7 @@ class _AccountBarState extends State<AccountBar> {
           ),
           const SizedBox(height: 10),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: accountList.map((account) => Row(
               children: [
                 const Icon(Icons.account_balance, color: Colors.blue),

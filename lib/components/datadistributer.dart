@@ -159,4 +159,11 @@ class Datadistributer {
     return success;
   }
 
+  Future<bool> deleteAccount(String account) async {
+    await ensureInitialized();
+    bool success = await dbs.deleteAccount(account);
+    await loadPipeline();
+    return success;
+  }
+
 }

@@ -169,7 +169,8 @@ class DatabaseService {
   // Delete all transactions by account
   Future<bool> deleteTransactionsByAccount(String account) async {
     try {
-      int count = await _db!.delete(
+      final db = await database;
+      int count = await db.delete(
         transactionTableName,
         where: 'account = ?',
         whereArgs: [account],
@@ -177,6 +178,21 @@ class DatabaseService {
       return count > 0;
     } catch (e) {
       debugPrint('Delete transactions by account failed: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteAccount(String account) async {
+    try {
+      final db = await database;
+      int count = await db.delete(
+        accountTableName,
+        where: 'name = ?',
+        whereArgs: [account],
+      );
+      return count > 0;
+    } catch (e) {
+      debugPrint('Delete account by account name failed: $e');
       return false;
     }
   }
