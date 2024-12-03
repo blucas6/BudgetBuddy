@@ -1,3 +1,4 @@
+//profile view
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:budgetbuddy/widgets/profileview.dart';
 import 'package:flutter/material.dart';
