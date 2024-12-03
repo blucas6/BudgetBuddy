@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void handleFilter(String? year, String? month) {
     // trigger the widgets to reload their filters
-    if (year != null && month != null) {
+    if (!(yearSave == year && monthSave == month)) {
       yearSave = year;
       monthSave = month;
       _transactionWidgetStateKey.currentState?.applyFilters(year, month);

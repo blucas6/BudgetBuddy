@@ -54,18 +54,23 @@ class TransactionWidgetState extends State<TransactionWidget> {
   }
 
   // load the filtered transaction object with data
-  void applyFilters(String year, String month) {
+  void applyFilters(String? year, String? month) {
     activeMonthFilter = month;
     activeYearFilter = year;
     debugPrint("Applying filter $year $month");
     currentFilteredTransactions = [];
-    // go through the transaction object
-    for (TransactionObj trans in allTransactions) {
-      if (trans.year == year && trans.month == month) {
-        // add to the list if a transaction is within the range
-        currentFilteredTransactions.add(trans);
+    if (activeMonthFilter != null && activeYearFilter != null) {
+      // go through the transaction object
+      for (TransactionObj trans in allTransactions) {
+        if (trans.year == year && trans.month == month) {
+          // add to the list if a transaction is within the range
+          currentFilteredTransactions.add(trans);
+        }
       }
+    } else {
+      currentFilteredTransactions = allTransactions;
     }
+    
     // reload the current transaction strings for display
     currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
     setState(() {});

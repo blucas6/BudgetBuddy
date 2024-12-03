@@ -73,6 +73,13 @@ class FilterWidgetState extends State<FilterWidget> {
     return choices;
   }
 
+  void clearFilters() {
+    currentMonth = null;
+    currentYear = null;
+    widget.newFilterTrigger(null, null);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -102,7 +109,8 @@ class FilterWidgetState extends State<FilterWidget> {
                 widget.newFilterTrigger(currentYear, currentMonth);
                 setState(() {});
               }
-            )
+            ),
+            IconButton(onPressed: () => clearFilters(), icon: const Icon(Icons.delete))
           ]
         ),
       );
