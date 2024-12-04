@@ -20,9 +20,10 @@ void main() {
         (WidgetTester tester) async {
       // Mock the response from loadProfile
       when(() => mockDatadistributer.loadProfile()).thenAnswer((_) async => {
-            'totalspending': -200.0,
+            'totalspending': 200.0,
             'totalincome': 1000.0,
             'totalassets': 800.0,
+            'totalsavings': 800.0,
           });
 
       // Mock ensureInitialized to resolve without issues
@@ -43,9 +44,10 @@ void main() {
 
       // Verify the widget displays the correct data
       expect(find.text('My Profile Summary'), findsOneWidget);
-      expect(find.text('Total Spending: -200.00'), findsOneWidget);
-      expect(find.text('Total Income: 1000.00'), findsOneWidget);
-      expect(find.text('Net Worth: 800.00'), findsOneWidget);
+      expect(find.text('Total Spending: \t\$200.00'), findsOneWidget);
+      expect(find.text('Total Income: \t\$1000.00'), findsOneWidget);
+      expect(find.text('Total Savings: \t\$800.00'), findsOneWidget);
+      expect(find.text('Net Worth: \t\$800.00'), findsOneWidget);
     });
 
     testWidgets('ProfileView shows initial empty data before loading',
@@ -54,6 +56,7 @@ void main() {
       when(() => mockDatadistributer.loadProfile()).thenAnswer((_) async => {
             'totalspending': 0.0,
             'totalincome': 0.0,
+            'totalsavings': 0.0,
             'totalassets': 0.0,
           });
 
@@ -75,9 +78,10 @@ void main() {
 
       // Verify initial state
       expect(find.text('My Profile Summary'), findsOneWidget);
-      expect(find.text('Total Spending: 0.00'), findsOneWidget);
-      expect(find.text('Total Income: 0.00'), findsOneWidget);
-      expect(find.text('Net Worth: 0.00'), findsOneWidget);
+      expect(find.text('Total Spending: \t\$0.00'), findsOneWidget);
+      expect(find.text('Total Income: \t\$0.00'), findsOneWidget);
+      expect(find.text('Total Savings: \t\$0.00'), findsOneWidget);
+      expect(find.text('Net Worth: \t\$0.00'), findsOneWidget);
     });
   });
 }

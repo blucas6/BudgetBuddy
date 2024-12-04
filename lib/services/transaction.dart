@@ -62,15 +62,15 @@ class TransactionObj {
     tags = map['Tags'] is String ? map['Tags'].split(';') : map['Tags'];
 
   // provide a sample transaction
-  TransactionObj.defaultTransaction()
-      : id = -1,
-        date = DateTime.parse('1980-01-01'),
-        cardn = 999,
-        content = 'Default Transaction',
-        category = 'Default',
-        cost = -1,
-        account = '',
-        tags = [];
+  TransactionObj.defaultTransaction() :
+    id = -1,
+    date = DateTime.parse('1980-01-01'),
+    cardn = 999,
+    content = 'Default Transaction',
+    category = 'Default',
+    cost = -1,
+    account = '',
+    tags = [];
 
   // provide a blank map to generate a transactionObj from
   Map<String, dynamic> getBlankMap() {
@@ -122,18 +122,8 @@ class TransactionObj {
   // getter for the month as a string
   String get month {
     List<String> monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
     ];
     return monthNames[date.month - 1];
   }

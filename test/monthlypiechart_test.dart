@@ -1,19 +1,33 @@
 //monthly pie chart
+import 'package:budgetbuddy/services/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:mocktail/mocktail.dart';
+
+// Mocking Datadistributer using Mock from mocktail
+class MockDatadistributer extends Mock implements Datadistributer {}
+
+class MockLoadSlices extends Mock {
+  Future<void> call();
+}
 
 void main() {
   group('MonthlyPieChart Tests', () {
-    Datadistributer datadistributer = Datadistributer();
-    testWidgets('Renders title and pie chart', (WidgetTester tester) async {
+    late MockDatadistributer mockDatadistributer;
+
+    setUp(() {
+      mockDatadistributer = MockDatadistributer();
+    });
+    testWidgets('Renders title and pie chart', (WidgetTester tester) async { 
+      
       // Build the widget
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: MonthlyPieChart(datadistributer: datadistributer),
+            body: MonthlyPieChart(datadistributer: mockDatadistributer),
           ),
         ),
       );
@@ -34,7 +48,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: MonthlyPieChart(datadistributer: datadistributer),
+            body: MonthlyPieChart(datadistributer: mockDatadistributer),
           ),
         ),
       );
@@ -65,7 +79,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: MonthlyPieChart(datadistributer: datadistributer),
+            body: MonthlyPieChart(datadistributer: mockDatadistributer),
           ),
         ),
       );

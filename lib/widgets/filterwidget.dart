@@ -9,10 +9,7 @@ class FilterWidget extends StatefulWidget {
   final void Function(String? year, String? month) newFilterTrigger;
   final Datadistributer datadistributer; // connection to the data pipeline
 
-  const FilterWidget(
-      {super.key,
-      required this.newFilterTrigger,
-      required this.datadistributer});
+  const FilterWidget({super.key, required this.newFilterTrigger, required this.datadistributer});
 
   @override
   State<FilterWidget> createState() => FilterWidgetState();

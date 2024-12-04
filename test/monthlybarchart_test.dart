@@ -13,7 +13,7 @@ void main() {
       // Build the widget
       await tester.pumpWidget(
         MaterialApp(
-          home: YearlyBarChart(datadistributer: datadistributer,),
+          home: YearlyBarChart(datadistributer: datadistributer),
         ),
       );
 
