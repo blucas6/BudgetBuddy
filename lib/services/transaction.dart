@@ -93,7 +93,7 @@ class TransactionObj {
       'Date': true,
       'Card': true,
       'Description': true,
-      'Category': true, 
+      'Category': true,
       'Cost': true,
       'Account': false,
       'Tags': true
@@ -107,7 +107,7 @@ class TransactionObj {
       'Date': 'DATE',
       'Card': 'INTEGER',
       'Description': 'TEXT',
-      'Category': 'TEXT', 
+      'Category': 'TEXT',
       'Cost': 'DOUBLE',
       'Account': 'TEXT',
       'Tags': 'TEXT'
@@ -122,8 +122,8 @@ class TransactionObj {
   // getter for the month as a string
   String get month {
     List<String> monthNames = [
-    "January", "February", "March", "April", "May", "June", 
-    "July", "August", "September", "October", "November", "December"
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
     ];
     return monthNames[date.month - 1];
   }

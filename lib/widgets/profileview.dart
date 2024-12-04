@@ -1,12 +1,10 @@
-
-
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:flutter/material.dart';
 
 class ProfileView extends StatefulWidget {
   // This object displays to the user data associated with the entire profile
 
-  final Datadistributer datadistributer;  // access to pipeline
+  final Datadistributer datadistributer; // access to pipeline
 
   const ProfileView({super.key, required this.datadistributer});
 
