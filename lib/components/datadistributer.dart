@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:budgetbuddy/components/tags.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
 import 'package:budgetbuddy/components/transactionfile.dart';
@@ -54,7 +55,9 @@ class Datadistributer {
     _allTransactions = await dbs.getTransactions();
     _allAccounts = await loadAccountList();
     // label pipeline as ready
-    _initCompleter.complete();
+    if (!_initCompleter.isCompleted) {
+      _initCompleter.complete();
+    }
     debugPrint("Done loading data pipeline!");
   }
 
@@ -108,22 +111,29 @@ class Datadistributer {
     return accountlist;
   }
 
-  // get the total spending over a period
+  // Sort the data from all spending across all accounts into
+  // a profile
   Future<Map<String,double>> loadProfile() async {
     await ensureInitialized();
     double totalspending = 0;
     double totalincome = 0;
+    double totalsavings = 0;
     for (TransactionObj row in _allTransactions) {
-      if (row.cost! < 0) {
-        totalspending += row.cost!;
-      } else {
-        totalincome += row.cost!;
+      if (Tags().isIncome(row)) {
+        totalincome += row.cost;
+      } else if (Tags().isSavings(row)) {
+        totalsavings += row.cost;
+      } else if (Tags().isValid(row)) {
+        totalspending += row.cost;
       }
     }
+    if (totalspending != 0) totalspending *= -1;
+    if (totalsavings != 0) totalsavings *= -1;
     return {
       'totalspending': totalspending,
       'totalincome': totalincome,
-      'totalassets': totalincome + totalspending
+      'totalsavings': totalsavings,
+      'totalassets': totalsavings + totalincome - totalspending,
       };
   }
 
@@ -148,6 +158,20 @@ class Datadistributer {
       }
     }
     return totalRange;
+  }
+
+  Future<bool> deleteTransactionsByAccount(String account) async {
+    await ensureInitialized();
+    bool success = await dbs.deleteTransactionsByAccount(account);
+    await loadPipeline();
+    return success;
+  }
+
+  Future<bool> deleteAccount(String account) async {
+    await ensureInitialized();
+    bool success = await dbs.deleteAccount(account);
+    await loadPipeline();
+    return success;
   }
 
 }

@@ -1,6 +1,7 @@
 import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:budgetbuddy/services/transaction.dart';
 import 'package:budgetbuddy/widgets/editmenuwidget.dart';
+import 'package:budgetbuddy/components/tags.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
@@ -9,8 +10,9 @@ class TransactionWidget extends StatefulWidget {
   // This object displays the transaction data table
 
   final Datadistributer datadistributer;  // access to pipeline
-
-  const TransactionWidget({super.key, required this.datadistributer});
+  final double maxTransactionWidgetHeight = 450; // controls how long the widget is
+  final void Function() newDataTrigger;
+  const TransactionWidget({super.key, required this.datadistributer, required this.newDataTrigger});
 
   @override
   State<TransactionWidget> createState() => TransactionWidgetState();
@@ -52,18 +54,23 @@ class TransactionWidgetState extends State<TransactionWidget> {
   }
 
   // load the filtered transaction object with data
-  void applyFilters(String year, String month) {
+  void applyFilters(String? year, String? month) {
     activeMonthFilter = month;
     activeYearFilter = year;
     debugPrint("Applying filter $year $month");
     currentFilteredTransactions = [];
-    // go through the transaction object
-    for (TransactionObj trans in allTransactions) {
-      if (trans.year == year && trans.month == month) {
-        // add to the list if a transaction is within the range
-        currentFilteredTransactions.add(trans);
+    if (activeMonthFilter != null && activeYearFilter != null) {
+      // go through the transaction object
+      for (TransactionObj trans in allTransactions) {
+        if (trans.year == year && trans.month == month) {
+          // add to the list if a transaction is within the range
+          currentFilteredTransactions.add(trans);
+        }
       }
+    } else {
+      currentFilteredTransactions = allTransactions;
     }
+    
     // reload the current transaction strings for display
     currentTransactionStrings = transactionsToStrings(currentFilteredTransactions);
     setState(() {});
@@ -147,6 +154,11 @@ class TransactionWidgetState extends State<TransactionWidget> {
     Map<String, dynamic> displayProperties = TransactionObj.defaultTransaction().getDisplayProperties();
     // loop through the transactions to create the cells and rows
     for (int rowc=0; rowc<currentTransactionStrings.length; rowc++) {
+      // for hidden transactions
+      bool textIsHidden = false;
+      String taglist = currentTransactionStrings[rowc][currentTransactionStrings[0].length-1];
+      if (taglist.contains(Tags().HIDDEN)) textIsHidden = true;
+      // for shading on hover
       if (rowHovers.length == rowc) {
         rowHovers.add(List.filled(TransactionObj().getProperties().keys.length, false));
       }
@@ -173,7 +185,11 @@ class TransactionWidgetState extends State<TransactionWidget> {
                     color: rowc % 2 != 0 ? (rowHovers[rowc][colc] ? Color.fromARGB(255, 233, 233, 233) : Color.fromARGB(255, 255, 255, 255)) : (rowHovers[rowc][colc] ? Color.fromARGB(255, 193, 222, 233) : Color.fromARGB(255, 201, 240, 255)),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
-                      child: Text(cellText)),
+                      child: Text(cellText, 
+                        style: TextStyle(fontStyle: textIsHidden ? FontStyle.italic : FontStyle.normal,
+                                          color: textIsHidden ? Colors.grey : Colors.black)
+                      )
+                    ),
                   ),
                 ),
               ),
@@ -218,6 +234,10 @@ class TransactionWidgetState extends State<TransactionWidget> {
     }
     // find the column of interest as a key
     String ourkey = currentFilteredTransactions[0].getProperties().keys.toList()[cindex];
+    // do not sort if the column holds lists of values
+    if (sortedTransactionMap[0][ourkey] is List) {
+      return;
+    }
     // set all columns besides the one of interest to null
     for (int i=0; i<columnSorts.length; i++) {
       columnSorts[i] = cindex != i ? null : columnSorts[i];
@@ -274,7 +294,7 @@ class TransactionWidgetState extends State<TransactionWidget> {
           } else {
             val = DateFormat('yyyy-MM-dd').format(value); // parse date
           }
-        } else if (value is List) {
+        } else if (value is List || value is List<String>) {
           val = value.join(" ");
         } else if (value == null) {
           val = ''; // don't display null params
@@ -336,32 +356,31 @@ class TransactionWidgetState extends State<TransactionWidget> {
           // reload after user adds or removes a tag
           // the pipeline should already have the data necessary
           // with only the changed value updated
-          loadTransactions();
+          // reload all widgets
+          widget.newDataTrigger();
         }
       }
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(children: [
+    return Column(
+      children: [
         Row(
           children: createDataTableHeaders(),
         ),
         Container(
-          alignment: Alignment.topLeft,
           constraints: BoxConstraints(
-            maxHeight: 500
-          ),
+            minWidth: 500,
+            minHeight: 200,
+            maxHeight: widget.maxTransactionWidgetHeight),
+          alignment: Alignment.topLeft,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: createDataTable(context)
           ),
         )
-      ]),
-    );
+      ]);
   }
 }

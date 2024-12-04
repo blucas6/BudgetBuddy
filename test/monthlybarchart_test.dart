@@ -1,17 +1,19 @@
 //monthly bar chart
+import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:budgetbuddy/widgets/monthlybarchart.dart';
+import 'package:budgetbuddy/widgets/yearlybarchart.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 void main() {
   group('MonthlyBarChart Tests', () {
+    Datadistributer datadistributer = Datadistributer();
     testWidgets('Renders header, pie chart, and bar chart',
         (WidgetTester tester) async {
       // Build the widget
       await tester.pumpWidget(
         MaterialApp(
-          home: MonthlyBarChart(),
+          home: YearlyBarChart(datadistributer: datadistributer,),
         ),
       );
 
@@ -34,7 +36,7 @@ void main() {
       // Build the widget
       await tester.pumpWidget(
         MaterialApp(
-          home: MonthlyBarChart(),
+          home: YearlyBarChart(datadistributer: datadistributer),
         ),
       );
 
@@ -56,7 +58,7 @@ void main() {
       // Build the widget
       await tester.pumpWidget(
         MaterialApp(
-          home: MonthlyBarChart(),
+          home: YearlyBarChart(datadistributer: datadistributer),
         ),
       );
 

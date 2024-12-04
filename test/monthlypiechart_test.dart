@@ -2,16 +2,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:budgetbuddy/widgets/monthlypiechart.dart';
+import 'package:budgetbuddy/components/datadistributer.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 void main() {
   group('MonthlyPieChart Tests', () {
+    Datadistributer datadistributer = Datadistributer();
     testWidgets('Renders title and pie chart', (WidgetTester tester) async {
       // Build the widget
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: MonthlyPieChart(),
+            body: MonthlyPieChart(datadistributer: datadistributer),
           ),
         ),
       );
@@ -32,7 +34,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: MonthlyPieChart(),
+            body: MonthlyPieChart(datadistributer: datadistributer),
           ),
         ),
       );
@@ -63,7 +65,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: MonthlyPieChart(),
+            body: MonthlyPieChart(datadistributer: datadistributer),
           ),
         ),
       );

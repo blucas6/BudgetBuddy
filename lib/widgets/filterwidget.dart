@@ -30,13 +30,14 @@ class FilterWidgetState extends State<FilterWidget> {
   @override
   void initState() {
     super.initState();
-    loadData();
+    loadData(null,null);
   }
 
   // reloads the widgets data and rebuilds it
-  void loadData() async {
-    currentMonth = null;
-    currentYear = null;
+  void loadData(String? yearSave, String? monthSave) async {
+    debugPrint("Reloading filter widget");
+    currentMonth = monthSave;
+    currentYear = yearSave;
     dataRange = await widget.datadistributer.getTotalDateRange();
     setState(() {});
   }
@@ -63,33 +64,46 @@ class FilterWidgetState extends State<FilterWidget> {
     return choices;
   }
 
+  void clearFilters() {
+    currentMonth = null;
+    currentYear = null;
+    widget.newFilterTrigger(null, null);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        DropdownButton(
-            value: currentYear,
-            hint: const Text('Select a year'),
-            items: getYearChoices(),
-            onChanged: (dynamic newValue) {
-              // on new value set the month to null
-              currentYear = newValue;
-              currentMonth = null;
-              // trigger the app to reload filters
-              widget.newFilterTrigger(currentYear, currentMonth);
-              setState(() {});
-            }),
-        DropdownButton(
-            value: currentMonth,
-            hint: const Text('Select a month'),
-            items: getMonthChoices(),
-            onChanged: (dynamic newValue) {
-              currentMonth = newValue;
-              // trigger the app to reload filters
-              widget.newFilterTrigger(currentYear, currentMonth);
-              setState(() {});
-            })
-      ]),
-    );
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButton(
+              value: currentYear,
+              hint: const Text('Select a year'),
+              items: getYearChoices(), 
+              onChanged: (dynamic newValue) {
+                // on new value set the month to null
+                currentYear = newValue;
+                currentMonth = null;
+                // trigger the app to reload filters
+                widget.newFilterTrigger(currentYear, currentMonth);
+                setState(() {});
+              }
+            ),
+            DropdownButton(
+              value: currentMonth,
+              hint: const Text('Select a month'),
+              items: getMonthChoices(), 
+              onChanged: (dynamic newValue) {
+                currentMonth = newValue;
+                // trigger the app to reload filters
+                widget.newFilterTrigger(currentYear, currentMonth);
+                setState(() {});
+              }
+            ),
+            IconButton(onPressed: () => clearFilters(), icon: const Icon(Icons.delete))
+          ]
+        ),
+      );
   }
 }
