@@ -91,7 +91,7 @@ class _AccountBarState extends State<AccountBar> {
         File file = File(filePath);
         if (await file.exists()) {
           await file.delete();
-          print("File deleted from storage.");
+          debugPrint("File deleted from storage.");
         }
       }
 
@@ -99,9 +99,9 @@ class _AccountBarState extends State<AccountBar> {
       bool success = await widget.datadistributer.deleteTransactionsByAccount(account);
       bool success2 = await widget.datadistributer.deleteAccount(account);
       if (success && success2) widget.newDataTrigger();
-      print("Associated data deleted from database.");
+      debugPrint("Associated data deleted from database.");
     } catch (e) {
-      print("Error deleting account data: $e");
+      debugPrint("Error deleting account data: $e");
     }
 
     setState(() {

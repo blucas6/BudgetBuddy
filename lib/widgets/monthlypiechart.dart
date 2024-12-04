@@ -48,6 +48,7 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
     allTransactions = await widget.datadistributer.allTransactions;
     // go through transactions to set up the map
     for (TransactionObj trans in allTransactions) {
+      String possibleTag = trans.tags.isNotEmpty ? trans.tags[trans.tags.length-1] : '';
       // only use transaction IF
       //  the transaction matches the filtered year
       //  the year filter is blank
@@ -65,6 +66,12 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
           } else {
             slicesMap[trans.category!] = trans.cost;
           }
+        } else if (possibleTag != '') {
+          if (slicesMap.containsKey(possibleTag)) {
+            slicesMap[possibleTag] += trans.cost;
+          } else {
+            slicesMap[possibleTag] = trans.cost;
+          }
         } else if (slicesMap.containsKey(widget.unnamedCategory)) {
           slicesMap[widget.unnamedCategory] += trans.cost;
         } else {
@@ -76,8 +83,8 @@ class MonthlyPieChartState extends State<MonthlyPieChart> {
     }
     // if there are slices, the piechart is loaded
     if (slicesMap.isNotEmpty) pieChartLoaded = true;
-    print(totalMonthlySpending);
-    print(slicesMap);
+    // print(totalMonthlySpending);
+    // print(slicesMap);
     setState(() {});
   }
 

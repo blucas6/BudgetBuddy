@@ -23,10 +23,10 @@ List<TransactionObj> allTransactions = [];    // all transactions from the data 
 Map<String,dynamic> allBars = {};
 String? currentMonth;
 Color currentMonthColor = const Color.fromARGB(255, 255, 193, 7);
-Color currentMonthColorRent = const Color.fromARGB(255, 255, 202, 43);
+Color currentMonthColorRent = const Color.fromARGB(255, 255, 233, 168);
 Color currentMonthColorIncome = const Color.fromARGB(255, 194, 147, 8);
 Color monthColor = const Color.fromARGB(255, 36, 152, 247);
-Color monthColorRent = const Color.fromARGB(255, 103, 189, 250);
+Color monthColorRent = const Color.fromARGB(255, 137, 206, 255);
 Color monthColorIncome = const Color.fromARGB(255, 14, 94, 151);
 double barWidth = 25;
 double barRadius = 4;
@@ -72,7 +72,7 @@ void loadData(String? year, String? month) async {
       }
     }
   }
-  print(allBars);
+  // print(allBars);
   // find the largest bar
   allBars.forEach((key, dict) {
     double value = dict['rent'] + dict['spending'];
@@ -110,19 +110,19 @@ BarChart getBarChart() {
           x: index,
           barRods: [
             BarChartRodData(
-              toY: spending,
-              color: thisColor,
+              toY: spending+rent,
               width: barWidth,
+              color: thisColor,
               rodStackItems: [
                 BarChartRodStackItem(0, rent, thisColorRent),
-                BarChartRodStackItem(rent, spending, thisColor)
+                BarChartRodStackItem(rent, spending+rent, thisColor),
               ],
               borderRadius: BorderRadius.circular(barRadius)
             ),
             BarChartRodData(
               toY: income,
               color: thisColorIncome,
-              width: barWidth,
+              width: barWidth-10,
               borderRadius: BorderRadius.circular(barRadius)
             )
           ]
@@ -167,8 +167,9 @@ BarChart getBarChart() {
             String category = allBars.keys.toList()[groupIndex.toInt()];
             String rent = allBars[category]['rent'].toStringAsFixed(2);
             String spending = allBars[category]['spending'].toStringAsFixed(2);
+            String income = allBars[category]['income'].toStringAsFixed(2);
             return BarTooltipItem(
-              '$category\nSpending: \$$spending \nRent: \$$rent',
+              '$category\nSpending: \$$spending \nRent: \$$rent\nIncome: \$$income',
               const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,

@@ -103,7 +103,7 @@ class TransactionFile {
         // add account type as a column
         transactionMap['Account'] = account;
         // done going through columns, add transactionobj to list
-        print(transactionMap);
+        // print(transactionMap);
         TransactionObj currentTrans = TransactionObj.loadFromMap(transactionMap);
         data.add(currentTrans);
       }

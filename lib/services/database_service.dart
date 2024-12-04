@@ -110,7 +110,7 @@ class DatabaseService {
       final db = await database;
       await db.insert(transactionTableName, trans.getPropertiesNoID());
       debugPrint("Transaction added: ");
-      print(trans.getProperties());
+      // print(trans.getProperties());
       return true;
     } catch (e) {
       debugPrint('Add transaction failed: $e');
@@ -145,7 +145,7 @@ class DatabaseService {
       );
       return count > 0;
     } catch (e) {
-      print('Update transaction failed: $e');
+      debugPrint('Update transaction failed: $e');
       return false;
     }
   }
@@ -202,7 +202,7 @@ class DatabaseService {
     final List<Map<String, dynamic>> results = await db.query(transactionTableName);
     if (results.isNotEmpty) {
       debugPrint('--- Transactions in Database ---');
-      print(results);
+      // print(results);
       debugPrint('-------------------------------');
     } else {
       debugPrint('No transactions found in the database.');
