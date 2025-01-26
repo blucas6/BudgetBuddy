@@ -6,7 +6,7 @@
 BudgetBuddy is a free, simple, easy-to-use personal finance software application that lets you view all your expenses in one unified view.
 
 ## Tags
-[GUI, Data analytics, Desktop app]
+GUI, Data analytics, Desktop app
 
 ## Test Plan
 ### Adding and Removing an Account
